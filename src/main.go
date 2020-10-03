@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"kube-tools/src/config"
 	"kube-tools/src/tools"
 )
@@ -17,7 +16,7 @@ func main() {
 		tools.Node()
 	case "install":
 		// 部署用于执行 node shell 的 ds
-		fmt.Println("飞速开发中...")
+		tools.Install()
 	case "clean":
 		// 清理 node shell 的 ds
 		tools.Clean()

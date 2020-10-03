@@ -13,7 +13,10 @@ func Cat() {
 	if strings.EqualFold(filePath, "") {
 		return
 	}
-	pods, err := config.KubeClientSet.CoreV1().Pods(*config.ShellNamespace).List(metav1.ListOptions{})
+	pods, err := config.KubeClientSet.CoreV1().Pods(config.ShellNamespace).List(metav1.ListOptions{
+		TypeMeta:      metav1.TypeMeta{},
+		LabelSelector: "name=" + config.ShellPodName,
+	})
 	if err != nil {
 		panic(err.Error())
 	}
@@ -23,7 +26,7 @@ func Cat() {
 	}
 	for i := 0; i < len(pods.Items); i++ {
 		pod := pods.Items[i]
-		if strings.Contains(pod.Name, "node-shell-tool") {
+		if strings.Contains(pod.Name, config.ShellPodName) {
 			fmt.Println("------------------------------>", pod.Status.HostIP, "<------------------------------")
 			ExecCmd(&pod, "cat "+filePath, "")
 		}

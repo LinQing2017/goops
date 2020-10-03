@@ -11,12 +11,12 @@ import (
 
 var KubeConfig *restclient.Config
 var KubeClientSet *kubernetes.Clientset
-var ShellNamespace *string
+var ShellNamespace = "node-shell"
+var ShellPodName = "node-shell-tool"
 
 func InitKube() {
 
 	kubeConfigStr := flag.String("kubeconfig", filepath.Join(os.Getenv("HOME"), ".kube", "config"), "指定config文件")
-	ShellNamespace = flag.String("shell-namespaces", "node-shell", "node-shell 的命名空间")
 	flag.Parse()
 
 	var err error
