@@ -18,9 +18,9 @@ func main() {
 	case "install":
 		// 部署用于执行 node shell 的 ds
 		fmt.Println("飞速开发中...")
-	case "uninstall":
+	case "clean":
 		// 清理 node shell 的 ds
-		fmt.Println("飞速开发中...")
+		tools.Clean()
 	case "cat":
 		// 获取node内的文件内容
 		tools.Cat()
