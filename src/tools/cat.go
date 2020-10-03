@@ -9,16 +9,14 @@ import (
 )
 
 func Cat() {
-
 	filePath := flag.Arg(1)
-
-	fmt.Println(filePath)
-
+	if strings.EqualFold(filePath, "") {
+		return
+	}
 	pods, err := config.KubeClientSet.CoreV1().Pods(*config.ShellNamespace).List(metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
 	}
-
 	for i := 0; i < len(pods.Items); i++ {
 		pod := pods.Items[i]
 		if strings.Contains(pod.Name, "node-shell-tool") {
