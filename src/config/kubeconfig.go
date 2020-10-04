@@ -13,10 +13,12 @@ var KubeConfig *restclient.Config
 var KubeClientSet *kubernetes.Clientset
 var ShellNamespace = "node-shell"
 var ShellPodName = "node-shell-tool"
+var NodeIP *string
 
 func InitKube() {
 
 	kubeConfigStr := flag.String("kubeconfig", filepath.Join(os.Getenv("HOME"), ".kube", "config"), "指定config文件")
+	NodeIP = flag.String("node", "", "指定运行的节点")
 	flag.Parse()
 
 	var err error

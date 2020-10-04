@@ -26,10 +26,10 @@ func Cat() {
 	}
 	for i := 0; i < len(pods.Items); i++ {
 		pod := pods.Items[i]
-		if strings.Contains(pod.Name, config.ShellPodName) {
+		if strings.Contains(pod.Name, config.ShellPodName) &&
+			(strings.EqualFold(*config.NodeIP, "") || strings.EqualFold(*config.NodeIP, pod.Status.HostIP)) {
 			fmt.Println("------------------------------>", pod.Status.HostIP, "<------------------------------")
-			ExecCmd(&pod, "cat "+filePath, "")
+			ExecCmd(&pod, "cat "+filePath, "", nil, false)
 		}
-
 	}
 }

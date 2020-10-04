@@ -13,19 +13,18 @@ import (
 	"strings"
 )
 
-func ExecCmd(pod *v1.Pod, command string, containerName string) {
+func ExecCmd(pod *v1.Pod, command string, containerName string, stdin io.Reader, isTTY bool) {
 
 	// 获取pod中的目标Container
 	container, _ := containerToExec(containerName, pod)
-
 	// 创建运行表达式
 	execOptions := v1.PodExecOptions{
 		Command:   strings.Fields(command),
 		Container: container.Name,
-		Stdin:     false,
+		Stdin:     stdin != nil,
 		Stdout:    true,
 		Stderr:    true,
-		TTY:       false,
+		TTY:       isTTY,
 	}
 
 	// 创建客户端请求
@@ -37,7 +36,7 @@ func ExecCmd(pod *v1.Pod, command string, containerName string) {
 	req.VersionedParams(&execOptions, scheme.ParameterCodec)
 
 	// 执行命令，并输出到标准输出
-	streamOptions := getStreamOptions(&execOptions, nil, os.Stdout, os.Stderr)
+	streamOptions := getStreamOptions(&execOptions, stdin, os.Stdout, os.Stderr)
 	startStream("POST", req.URL(), config.KubeConfig, streamOptions)
 }
 

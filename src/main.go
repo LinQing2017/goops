@@ -23,6 +23,9 @@ func main() {
 	case "cat":
 		// 获取node内的文件内容
 		tools.Cat()
+	case "sh":
+		// 容器内执行shell
+		tools.Shell()
 	default:
 		flag.Usage()
 	}
