@@ -21,12 +21,12 @@ type ExecOptions struct {
 	Istty         bool
 }
 
-func ExexCmdParallel(pod *v1.Pod, execOptions ExecOptions, tChan chan int) {
+func ExecCmdParallel(pod *v1.Pod, execOptions ExecOptions, tChan chan int) {
 	err := ExecCmd(pod, execOptions)
 
 	if err != nil {
 		fmt.Println("请求 API Service 返回异常：", pod.Status.HostIP)
-		panic(err.Error())
+		//panic(err.Error())
 	}
 
 	tChan <- 1

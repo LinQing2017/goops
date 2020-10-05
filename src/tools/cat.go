@@ -44,22 +44,25 @@ func Cat() {
 				Err:           os.Stderr,
 				Istty:         false,
 			}
-			go ExexCmdParallel(&pod, catExecOps, tChan)
 			threadNum += 1
+			go ExecCmdParallel(&pod, catExecOps, tChan)
 			if threadNum%config.ConcurrentThreadNum == 0 {
 				// 5个线程进行并发
-				WaitAllThreadFinish(config.ConcurrentThreadNum, tChan, 30)
+				WaitAllThreadFinish(config.ConcurrentThreadNum, tChan, 60)
 			} else if threadNum == len(pods.Items) {
 				// 等待剩余线程完成
-				WaitAllThreadFinish(threadNum%config.ConcurrentThreadNum, tChan, 30)
+				WaitAllThreadFinish(threadNum%config.ConcurrentThreadNum, tChan, 60)
 			}
 		}
+
 	}
 	//WaitAllThreadFinish(threadNum, tChan, 30)
 	close(tChan)
 
-	for i := 0; i < threadNum; i++ {
+	for i := 0; i < len(outPutBuffers); i++ {
 		outPutBuffer := outPutBuffers[i]
-		fmt.Println(outPutBuffer.String())
+		if outPutBuffer != nil {
+			fmt.Println(outPutBuffer.String())
+		}
 	}
 }
