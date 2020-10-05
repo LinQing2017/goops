@@ -22,11 +22,17 @@ type ExecOptions struct {
 }
 
 func ExexCmdParallel(pod *v1.Pod, execOptions ExecOptions, tChan chan int) {
-	ExecCmd(pod, execOptions)
+	err := ExecCmd(pod, execOptions)
+
+	if err != nil {
+		fmt.Println("请求 API Service 返回异常：", pod.Status.HostIP)
+		panic(err.Error())
+	}
+
 	tChan <- 1
 }
 
-func ExecCmd(pod *v1.Pod, execOptions ExecOptions) {
+func ExecCmd(pod *v1.Pod, execOptions ExecOptions) error {
 
 	// 获取pod中的目标Container
 	container, _ := containerToExec(execOptions.ContainerName, pod)
@@ -50,7 +56,7 @@ func ExecCmd(pod *v1.Pod, execOptions ExecOptions) {
 
 	// 执行命令，并输出到标准输出
 	streamOptions := getStreamOptions(&podOptions, execOptions.In, execOptions.Out, execOptions.Err)
-	startStream("POST", req.URL(), config.KubeConfig, streamOptions)
+	return startStream("POST", req.URL(), config.KubeConfig, streamOptions)
 }
 
 func containerToExec(container string, pod *v1.Pod) (*v1.Container, error) {
