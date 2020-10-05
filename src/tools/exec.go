@@ -21,9 +21,9 @@ type ExecOptions struct {
 	Istty         bool
 }
 
-func ExexCmdParallel(pod *v1.Pod, execOptions ExecOptions, tchan chan int) {
+func ExexCmdParallel(pod *v1.Pod, execOptions ExecOptions, tChan chan int) {
 	ExecCmd(pod, execOptions)
-	tchan <- 1
+	tChan <- 1
 }
 
 func ExecCmd(pod *v1.Pod, execOptions ExecOptions) {
