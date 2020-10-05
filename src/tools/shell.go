@@ -22,7 +22,15 @@ func Shell() {
 	for i := 0; i < len(pods.Items); i++ {
 		pod := pods.Items[i]
 		if strings.EqualFold(pod.Status.HostIP, *config.NodeIP) {
-			ExecCmd(&pod, "bash", "", os.Stdin, true)
+			shellExecOps := ExecOptions{
+				Command:       "bash",
+				ContainerName: "",
+				In:            os.Stdin,
+				Out:           os.Stdout,
+				Err:           os.Stderr,
+				Istty:         true,
+			}
+			ExecCmd(&pod, shellExecOps)
 			return
 		}
 	}

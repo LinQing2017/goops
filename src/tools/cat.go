@@ -5,6 +5,7 @@ import (
 	"fmt"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"kube-tools/src/config"
+	"os"
 	"strings"
 )
 
@@ -29,7 +30,15 @@ func Cat() {
 		if strings.Contains(pod.Name, config.ShellPodName) &&
 			(strings.EqualFold(*config.NodeIP, "") || strings.EqualFold(*config.NodeIP, pod.Status.HostIP)) {
 			fmt.Println("------------------------------>", pod.Status.HostIP, "<------------------------------")
-			ExecCmd(&pod, "cat "+filePath, "", nil, false)
+			catExecOps := ExecOptions{
+				Command:       "cat " + filePath,
+				ContainerName: "",
+				In:            nil,
+				Out:           os.Stdout,
+				Err:           os.Stderr,
+				Istty:         false,
+			}
+			ExecCmd(&pod, catExecOps)
 		}
 	}
 }

@@ -9,22 +9,35 @@ import (
 	"k8s.io/client-go/tools/remotecommand"
 	"kube-tools/src/config"
 	"net/url"
-	"os"
 	"strings"
 )
 
-func ExecCmd(pod *v1.Pod, command string, containerName string, stdin io.Reader, isTTY bool) {
+type ExecOptions struct {
+	Command       string
+	ContainerName string
+	In            io.Reader
+	Out           io.Writer
+	Err           io.Writer
+	Istty         bool
+}
+
+func ExexCmdParallel(pod *v1.Pod, execOptions ExecOptions, tchan chan int) {
+	ExecCmd(pod, execOptions)
+	tchan <- 1
+}
+
+func ExecCmd(pod *v1.Pod, execOptions ExecOptions) {
 
 	// 获取pod中的目标Container
-	container, _ := containerToExec(containerName, pod)
+	container, _ := containerToExec(execOptions.ContainerName, pod)
 	// 创建运行表达式
-	execOptions := v1.PodExecOptions{
-		Command:   strings.Fields(command),
+	podOptions := v1.PodExecOptions{
+		Command:   strings.Fields(execOptions.Command),
 		Container: container.Name,
-		Stdin:     stdin != nil,
-		Stdout:    true,
-		Stderr:    true,
-		TTY:       isTTY,
+		Stdin:     execOptions.In != nil,
+		Stdout:    execOptions.Out != nil,
+		Stderr:    execOptions.Err != nil,
+		TTY:       execOptions.Istty,
 	}
 
 	// 创建客户端请求
@@ -33,10 +46,10 @@ func ExecCmd(pod *v1.Pod, command string, containerName string, stdin io.Reader,
 		Name(pod.Name).
 		Namespace(pod.Namespace).
 		SubResource("exec")
-	req.VersionedParams(&execOptions, scheme.ParameterCodec)
+	req.VersionedParams(&podOptions, scheme.ParameterCodec)
 
 	// 执行命令，并输出到标准输出
-	streamOptions := getStreamOptions(&execOptions, stdin, os.Stdout, os.Stderr)
+	streamOptions := getStreamOptions(&podOptions, execOptions.In, execOptions.Out, execOptions.Err)
 	startStream("POST", req.URL(), config.KubeConfig, streamOptions)
 }
 
