@@ -46,9 +46,16 @@ func Cat() {
 			}
 			go ExexCmdParallel(&pod, catExecOps, tChan)
 			threadNum += 1
+			if threadNum%10 == 0 {
+				// 5个线程进行并发
+				WaitAllThreadFinish(10, tChan, 30)
+			} else if threadNum == len(pods.Items) {
+				// 等待剩余线程完成
+				WaitAllThreadFinish(threadNum%10, tChan, 30)
+			}
 		}
 	}
-	WaitAllThreadFinish(threadNum, tChan, 30)
+	//WaitAllThreadFinish(threadNum, tChan, 30)
 	close(tChan)
 
 	for i := 0; i < threadNum; i++ {
