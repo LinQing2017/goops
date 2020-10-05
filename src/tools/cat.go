@@ -34,7 +34,7 @@ func Cat() {
 		pod := pods.Items[i]
 		if strings.Contains(pod.Name, config.ShellPodName) &&
 			(strings.EqualFold(*config.NodeIP, "") || strings.EqualFold(*config.NodeIP, pod.Status.HostIP)) {
-			outPutBuffer := bytes.NewBufferString("------------------------------> Shell on node: " + pod.Status.HostIP + "<------------------------------\n")
+			outPutBuffer := bytes.NewBufferString("------------------------------> Shell on node: " + pod.Status.HostIP + " <------------------------------\n")
 			outPutBuffers[i] = outPutBuffer
 			catExecOps := ExecOptions{
 				Command:       "cat " + filePath,
@@ -46,12 +46,12 @@ func Cat() {
 			}
 			go ExexCmdParallel(&pod, catExecOps, tChan)
 			threadNum += 1
-			if threadNum%10 == 0 {
+			if threadNum%5 == 0 {
 				// 5个线程进行并发
-				WaitAllThreadFinish(10, tChan, 30)
+				WaitAllThreadFinish(5, tChan, 30)
 			} else if threadNum == len(pods.Items) {
 				// 等待剩余线程完成
-				WaitAllThreadFinish(threadNum%10, tChan, 30)
+				WaitAllThreadFinish(threadNum%5, tChan, 30)
 			}
 		}
 	}
