@@ -14,6 +14,7 @@ var KubeClientSet *kubernetes.Clientset
 var ShellNamespace = "node-shell"
 var ShellPodName = "node-shell-tool"
 var NodeIP *string
+var ConcurrentThreadNum = 5
 
 func InitKube() {
 
