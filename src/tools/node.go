@@ -12,6 +12,7 @@ type NodeInfo struct {
 	Name       string
 	ENV_LABEL  string
 	TYPE_LABEL string
+	SHELL_POD  string
 }
 
 func Node() {
@@ -20,6 +21,7 @@ func Node() {
 		panic(err.Error())
 	}
 	nodeInfoList := make([]NodeInfo, len(nodes.Items))
+	shellPods, err := GetShellPodList()
 	for i := 0; i < len(nodes.Items); i++ {
 		node := nodes.Items[i]
 		env_lable := make([]string, 0)
@@ -34,10 +36,22 @@ func Node() {
 				continue
 			}
 		}
+
+		shellPodStatus := "Not Found"
+		if shellPods != nil && err == nil {
+			for _, pod := range shellPods.Items {
+				if strings.EqualFold(pod.Status.HostIP, node.Name) {
+					shellPodStatus = string(pod.Status.Phase)
+					break
+				}
+			}
+		}
+
 		nodeInfo := NodeInfo{
 			node.Name,
 			strings.Join(env_lable, ","),
 			strings.Join(type_lable, ","),
+			shellPodStatus,
 		}
 		nodeInfoList[i] = nodeInfo
 	}
