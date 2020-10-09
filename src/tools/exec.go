@@ -114,7 +114,7 @@ func GetShellPodList() (*v1.PodList, error) {
 	})
 	if err != nil || pods.Size() == 0 {
 		err = &error2.NodeShellError{500, "Node Shell 工具没有安装或者有异常"}
-		return nil, err
+		panic(err.Error())
 	}
 	return pods, err
 }

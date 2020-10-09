@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"kube-tools/src/config"
 	"os"
 	"strings"
@@ -15,19 +14,10 @@ func Cat() {
 	if strings.EqualFold(filePath, "") {
 		return
 	}
-	pods, err := config.KubeClientSet.CoreV1().Pods(config.ShellNamespace).List(metav1.ListOptions{
-		TypeMeta:      metav1.TypeMeta{},
-		LabelSelector: "name=" + config.ShellPodName,
-	})
-	if err != nil {
-		panic(err.Error())
-	}
-	if pods.Size() == 0 {
-		fmt.Println("Node Shell 工具没有安装")
-		return
-	}
-	//tChan := make(chan int, len(pods.Items))
+	pods, _ := GetShellPodList()
 	outPutBuffers := make([]*bytes.Buffer, len(pods.Items))
+
+	//tChan := make(chan int, len(pods.Items))
 	//threadNum := 0
 
 	for i := 0; i < len(pods.Items); i++ {

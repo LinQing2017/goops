@@ -18,7 +18,7 @@ func Df() {
 		pod := pods.Items[i]
 		if strings.Contains(pod.Name, config.ShellPodName) &&
 			(strings.EqualFold(*config.NodeIP, "") || strings.EqualFold(*config.NodeIP, pod.Status.HostIP)) {
-			fmt.Print("------------------------------> No.", i, " Shell on node: "+pod.Status.HostIP+" <------------------------------")
+			fmt.Println("------------------------------> No.", i, " Shell on node: "+pod.Status.HostIP+" <------------------------------")
 			catExecOps := ExecOptions{
 				Command:       "df -lh ",
 				ContainerName: "",
