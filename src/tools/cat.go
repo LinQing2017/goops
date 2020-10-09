@@ -26,9 +26,9 @@ func Cat() {
 		fmt.Println("Node Shell 工具没有安装")
 		return
 	}
-	tChan := make(chan int, len(pods.Items))
+	//tChan := make(chan int, len(pods.Items))
 	outPutBuffers := make([]*bytes.Buffer, len(pods.Items))
-	threadNum := 0
+	//threadNum := 0
 
 	for i := 0; i < len(pods.Items); i++ {
 		pod := pods.Items[i]
@@ -44,21 +44,21 @@ func Cat() {
 				Err:           os.Stderr,
 				Istty:         false,
 			}
-			threadNum += 1
-			go ExecCmdParallel(&pod, catExecOps, tChan)
-			if threadNum%config.ConcurrentThreadNum == 0 {
-				// 5个线程进行并发
-				WaitAllThreadFinish(config.ConcurrentThreadNum, tChan, 60)
-			} else if threadNum == len(pods.Items) {
-				// 等待剩余线程完成
-				WaitAllThreadFinish(threadNum%config.ConcurrentThreadNum, tChan, 60)
-			}
+			ExecCmd(&pod, catExecOps)
+			//threadNum += 1
+			//go ExecCmdParallel(&pod, catExecOps, tChan)
+			//if threadNum%config.ConcurrentThreadNum == 0 {
+			//	// 5个线程进行并发
+			//	WaitAllThreadFinish(config.ConcurrentThreadNum, tChan, 60)
+			//} else if threadNum == len(pods.Items) {
+			//	// 等待剩余线程完成
+			//	WaitAllThreadFinish(threadNum%config.ConcurrentThreadNum, tChan, 60)
+			//}
 		}
 
 	}
-	//WaitAllThreadFinish(threadNum, tChan, 30)
-	close(tChan)
 
+	//close(tChan)
 	for i := 0; i < len(outPutBuffers); i++ {
 		outPutBuffer := outPutBuffers[i]
 		if outPutBuffer != nil {
