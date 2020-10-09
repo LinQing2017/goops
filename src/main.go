@@ -26,6 +26,9 @@ func main() {
 	case "sh":
 		// 容器内执行shell
 		tools.Shell()
+	case "df":
+		// 容器内磁盘使用情况
+		tools.Df()
 	default:
 		flag.Usage()
 	}

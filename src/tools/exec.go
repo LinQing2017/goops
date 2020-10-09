@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"io"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/remotecommand"
 	"kube-tools/src/config"
+	error2 "kube-tools/src/error"
 	"net/url"
 	"strings"
 )
@@ -103,4 +105,16 @@ func startStream(method string, url *url.URL, config *restclient.Config, streamO
 	}
 
 	return exec.Stream(streamOptions)
+}
+
+func GetShellPodList() (*v1.PodList, error) {
+	pods, err := config.KubeClientSet.CoreV1().Pods(config.ShellNamespace).List(metav1.ListOptions{
+		TypeMeta:      metav1.TypeMeta{},
+		LabelSelector: "name=" + config.ShellPodName,
+	})
+	if err != nil || pods.Size() == 0 {
+		err = &error2.NodeShellError{500, "Node Shell 工具没有安装或者有异常"}
+		return nil, err
+	}
+	return pods, err
 }
