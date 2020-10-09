@@ -3,6 +3,7 @@ package tools
 import (
 	"fmt"
 	"github.com/modood/table"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"kube-tools/src/config"
 	"strings"
@@ -37,11 +38,11 @@ func Node() {
 			}
 		}
 
-		shellPodStatus := "Not Found"
+		shellPod := ""
 		if shellPods != nil && err == nil {
 			for _, pod := range shellPods.Items {
-				if strings.EqualFold(pod.Status.HostIP, node.Name) {
-					shellPodStatus = string(pod.Status.Phase)
+				if strings.EqualFold(pod.Status.HostIP, node.Name) && pod.Status.Phase == v1.PodRunning {
+					shellPod = pod.Name
 					break
 				}
 			}
@@ -51,7 +52,7 @@ func Node() {
 			node.Name,
 			strings.Join(env_lable, ","),
 			strings.Join(type_lable, ","),
-			shellPodStatus,
+			shellPod,
 		}
 		nodeInfoList[i] = nodeInfo
 	}
