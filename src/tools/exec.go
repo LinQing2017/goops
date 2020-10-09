@@ -12,6 +12,7 @@ import (
 	error2 "kube-tools/src/error"
 	"net/url"
 	"strings"
+	"time"
 )
 
 type ExecOptions struct {
@@ -59,7 +60,9 @@ func ExecCmd(pod *v1.Pod, execOptions ExecOptions) error {
 		Resource("pods").
 		Name(pod.Name).
 		Namespace(pod.Namespace).
-		SubResource("exec")
+		SubResource("exec").
+		Timeout(time.Duration(config.HttpTimeOutInSec))
+
 	req.VersionedParams(&podOptions, scheme.ParameterCodec)
 
 	// 执行命令，并输出到标准输出
@@ -114,13 +117,21 @@ func startStream(method string, url *url.URL, config *restclient.Config, streamO
 }
 
 func GetShellPodList() (*v1.PodList, error) {
-	pods, err := config.KubeClientSet.CoreV1().Pods(config.ShellNamespace).List(metav1.ListOptions{
+
+	_, err := config.KubeClientSet.CoreV1().Namespaces().Get(config.ShellNamespace, metav1.GetOptions{
+		TypeMeta: metav1.TypeMeta{Kind: "Namespace", APIVersion: "v1"},
+	})
+	if err != nil {
+		err = &error2.NodeShellError{500, "Node Shell 工具没有安装或者有异常"}
+		return nil, err
+	}
+	var pods *v1.PodList
+	pods, err = config.KubeClientSet.CoreV1().Pods(config.ShellNamespace).List(metav1.ListOptions{
 		TypeMeta:      metav1.TypeMeta{},
 		LabelSelector: "name=" + config.ShellPodName,
 	})
-	if err != nil || pods.Size() == 0 {
+	if err != nil || len(pods.Items) == 0 {
 		err = &error2.NodeShellError{500, "Node Shell 工具没有安装或者有异常"}
-		//panic(err.Error())
 	}
 	return pods, err
 }

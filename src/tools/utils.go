@@ -16,8 +16,6 @@ func WaitAllThreadFinish(threadNum int, tChan chan int, timeOutInSec int) {
 	case <-isTimeout:
 		fmt.Println("操作超时终止")
 	}
-	close(isTimeout)
-	close(isFinish)
 
 }
 
@@ -26,9 +24,11 @@ func wait(threadNum int, tChan chan int, isFinish chan bool) {
 		<-tChan
 	}
 	isFinish <- true
+	close(isFinish)
 }
 
 func timeOut(timeOutInSec int, isTimeOut chan bool) {
 	time.Sleep(time.Duration(timeOutInSec * 1e9))
 	isTimeOut <- true
+	close(isTimeOut)
 }

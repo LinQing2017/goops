@@ -15,6 +15,7 @@ var ShellNamespace = "node-shell"
 var ShellPodName = "node-shell-tool"
 var NodeIP *string
 var ConcurrentThreadNum = 5
+var HttpTimeOutInSec = 10
 
 func InitKube() {
 
