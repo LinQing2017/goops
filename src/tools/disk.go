@@ -21,7 +21,7 @@ func Df() {
 				(strings.EqualFold(*config.NodeIP, "") || strings.EqualFold(*config.NodeIP, pod.Status.HostIP)) {
 				fmt.Println("------------------------------> No.", i, " Shell on node: "+pod.Status.HostIP+" <------------------------------")
 				dfExecOps := ExecOptions{
-					Command:       "df -lhi -x tmpfs -T",
+					Command:       "df -lh -x tmpfs -T",
 					ContainerName: "",
 					In:            nil,
 					Out:           os.Stdout,
