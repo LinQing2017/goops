@@ -36,6 +36,12 @@ func ExecCmdParallel(pod *v1.Pod, execOptions ExecOptions, tChan chan int) {
 
 func ExecCmd(pod *v1.Pod, execOptions ExecOptions) error {
 
+	if pod.Status.Phase != v1.PodRunning {
+		fmt.Println("Pod 没有就绪：", pod.Name, pod.Status.HostIP)
+		err := &error2.NodeShellError{500, "Pod 没有就绪"}
+		return err
+	}
+
 	// 获取pod中的目标Container
 	container, _ := containerToExec(execOptions.ContainerName, pod)
 	// 创建运行表达式
