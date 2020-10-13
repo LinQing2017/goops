@@ -88,6 +88,12 @@ func Install() {
 							Operator: v1.TolerationOpExists,
 							Effect:   v1.TaintEffectNoSchedule,
 						},
+						{
+							Key:      "build",
+							Value:    "type",
+							Operator: v1.TolerationOpEqual,
+							Effect:   v1.TaintEffectNoExecute,
+						},
 					},
 				},
 			},
