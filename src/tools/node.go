@@ -12,15 +12,15 @@ import (
 )
 
 type NodeInfo struct {
-	Name          string
-	Role          string
-	Unschedulable string
-	Env           string
-	Type          string
-	CPU           string
-	Memory        string
-	Pod           string
-	Shell         string
+	Name   string
+	Role   string
+	UnSche string
+	Env    string
+	Type   string
+	CPU    string
+	Memory string
+	Pod    string
+	Shell  string
 }
 
 func Node() {
@@ -63,11 +63,15 @@ func Node() {
 		podListOnNode := allPodDist[node.Name]
 
 		// 获取节点的状态
+		var unschedulable = ""
+		if node.Spec.Unschedulable {
+			unschedulable = "Y"
+		}
 
 		nodeInfo := NodeInfo{
 			node.Name,
 			role,
-			strconv.FormatBool(node.Spec.Unschedulable),
+			unschedulable,
 			strings.Join(env_lable, ","),
 			strings.Join(type_lable, ","),
 			node.Status.Capacity.Cpu().String(),
