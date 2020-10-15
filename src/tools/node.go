@@ -78,7 +78,7 @@ func Node() {
 		nodeInfoList[i] = nodeInfo
 	}
 	sort.Slice(nodeInfoList, func(i, j int) bool {
-		return nodeInfoList[i].ROLE < nodeInfoList[j].ROLE
+		return nodeInfoList[i].Role < nodeInfoList[j].Role
 	})
 	nodeInfoStr := table.Table(nodeInfoList)
 	fmt.Println(nodeInfoStr)
