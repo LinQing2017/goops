@@ -12,14 +12,15 @@ import (
 )
 
 type NodeInfo struct {
-	Name       string
-	ROLE       string
-	ENV_LABEL  string
-	TYPE_LABEL string
-	CPU        string
-	Memory     string
-	POD        string
-	SHELL_POD  string
+	Name          string
+	Role          string
+	Unschedulable string
+	Env           string
+	Type          string
+	CPU           string
+	Memory        string
+	Pod           string
+	Shell         string
 }
 
 func Node() {
@@ -29,8 +30,9 @@ func Node() {
 	}
 	nodeInfoList := make([]NodeInfo, len(nodes.Items))
 	shellPods, err := GetShellPodList()
-	for i := 0; i < len(nodes.Items); i++ {
-		node := nodes.Items[i]
+	allPodDist, _ := getAllPodByNodeName()
+	for i, node := range nodes.Items {
+		// 获取Role以及Label信息
 		role := ""
 		env_lable := make([]string, 0)
 		type_lable := make([]string, 0)
@@ -46,6 +48,7 @@ func Node() {
 			}
 		}
 
+		// 获取ShellPod名称
 		shellPod := ""
 		if shellPods != nil && err == nil {
 			for _, pod := range shellPods.Items {
@@ -56,18 +59,20 @@ func Node() {
 			}
 		}
 
-		pods, _ := config.KubeClientSet.CoreV1().Pods("").List(metav1.ListOptions{
-			FieldSelector: "spec.nodeName=" + node.Name,
-		})
+		// 列出获取该节点的所有Pod
+		podListOnNode := allPodDist[node.Name]
+
+		// 获取节点的状态
 
 		nodeInfo := NodeInfo{
 			node.Name,
 			role,
+			strconv.FormatBool(node.Spec.Unschedulable),
 			strings.Join(env_lable, ","),
 			strings.Join(type_lable, ","),
 			node.Status.Capacity.Cpu().String(),
 			strconv.FormatFloat(float64(node.Status.Capacity.Memory().Value())/1024/1024/1024, 'f', 2, 64) + " Gi",
-			strconv.Itoa(len(pods.Items)) + "/" + node.Status.Capacity.Pods().String(),
+			strconv.Itoa(len(podListOnNode)) + "/" + node.Status.Capacity.Pods().String(),
 			shellPod,
 		}
 		nodeInfoList[i] = nodeInfo
@@ -77,4 +82,19 @@ func Node() {
 	})
 	nodeInfoStr := table.Table(nodeInfoList)
 	fmt.Println(nodeInfoStr)
+}
+
+func getAllPodByNodeName() (podDist map[string][]v1.Pod, err error) {
+	pods, err := config.KubeClientSet.CoreV1().Pods("").List(metav1.ListOptions{})
+	podDist = make(map[string][]v1.Pod)
+	for _, pod := range pods.Items {
+		key := pod.Spec.NodeName
+		podListOnNode := podDist[key]
+		if podListOnNode == nil {
+			podListOnNode = make([]v1.Pod, 0)
+		}
+		podListOnNode = append(podListOnNode, pod)
+		podDist[key] = podListOnNode
+	}
+	return
 }
