@@ -1,36 +1,47 @@
 package main
 
 import (
-	"flag"
+	"github.com/spf13/cobra"
+	"kube-tools/src/cmd"
 	"kube-tools/src/config"
-	"kube-tools/src/tools"
+	cusPprof "kube-tools/src/pprof"
+	"os"
 )
 
 func main() {
 
-	config.InitKube()
-	action := flag.Arg(0)
-	switch action {
-	case "node":
-		// 返回节点信息列表
-		tools.Node()
-	case "install":
-		// 部署用于执行 node shell 的 ds
-		tools.Install()
-	case "clean":
-		// 清理 node shell 的 ds
-		tools.Clean()
-	case "cat":
-		// 获取node内的文件内容
-		tools.Cat()
-	case "sh":
-		// 容器内执行shell
-		tools.Shell()
-	case "df":
-		// 容器内磁盘使用情况
-		tools.Df()
-	default:
-		flag.Usage()
+	var rootCmd = &cobra.Command{
+		Use:   "ktool [sub]",
+		Short: "ND Kubernetes DevOps Tools.",
+		Run:   runHelp,
+		PersistentPreRunE: func(*cobra.Command, []string) error {
+			return cusPprof.InitProfiling()
+		},
+		PersistentPostRunE: func(*cobra.Command, []string) error {
+			return cusPprof.FlushProfiling()
+		},
 	}
 
+	flags := rootCmd.PersistentFlags()
+
+	config.AddFlags(flags)
+
+	cusPprof.AddProfilingFlags(flags)
+
+	rootCmd.AddCommand(cmd.NewCmdNode())
+	rootCmd.AddCommand(cmd.NewCmdDeploy())
+	rootCmd.AddCommand(cmd.NewCmdSh())
+
+	if err := execute(rootCmd); err != nil {
+		os.Exit(1)
+	}
+}
+
+func execute(cmd *cobra.Command) error {
+	err := cmd.Execute()
+	return err
+}
+
+func runHelp(cmd *cobra.Command, args []string) {
+	cmd.Help()
 }

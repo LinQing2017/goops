@@ -1,11 +1,12 @@
-package tools
+package cmd
 
 import (
 	"fmt"
 	"github.com/modood/table"
+	"github.com/spf13/cobra"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"kube-tools/src/config"
+	"kube-tools/src/util"
 	"sort"
 	"strconv"
 	"strings"
@@ -23,14 +24,17 @@ type NodeInfo struct {
 	Shell  string
 }
 
-func Node() {
-	nodes, err := config.KubeClientSet.CoreV1().Nodes().List(metav1.ListOptions{})
+func RunNode(cmd *cobra.Command, args []string) {
+
+	kubeClientSet, _ := util.KubeClient(cmd)
+
+	nodes, err := kubeClientSet.CoreV1().Nodes().List(metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
 	}
 	nodeInfoList := make([]NodeInfo, len(nodes.Items))
-	shellPods, err := GetShellPodList()
-	allPodDist, _ := getAllPodByNodeName()
+	shellPods, err := util.GetShellPodList(kubeClientSet)
+	allPodDist, _ := util.GetAllPodByNodeName(kubeClientSet, "")
 	for i, node := range nodes.Items {
 		// 获取Role以及Label信息
 		role := ""
@@ -88,17 +92,14 @@ func Node() {
 	fmt.Println(nodeInfoStr)
 }
 
-func getAllPodByNodeName() (podDist map[string][]v1.Pod, err error) {
-	pods, err := config.KubeClientSet.CoreV1().Pods("").List(metav1.ListOptions{})
-	podDist = make(map[string][]v1.Pod)
-	for _, pod := range pods.Items {
-		key := pod.Spec.NodeName
-		podListOnNode := podDist[key]
-		if podListOnNode == nil {
-			podListOnNode = make([]v1.Pod, 0)
-		}
-		podListOnNode = append(podListOnNode, pod)
-		podDist[key] = podListOnNode
+func NewCmdNode() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                   "node",
+		Short:                 "Print information for kubernetes node",
+		DisableFlagsInUseLine: true,
+		Run: func(cmd *cobra.Command, args []string) {
+			RunNode(cmd, args)
+		},
 	}
-	return
+	return cmd
 }
