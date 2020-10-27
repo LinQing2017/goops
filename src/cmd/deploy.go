@@ -132,7 +132,7 @@ func RunClean(cmd *cobra.Command, args []string) {
 func NewCmdInstall() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "install",
-		Short:                 "Install shell daemonset in kubernetes cluster",
+		Short:                 "安装Shell Pod服务",
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
 			RunInstall(cmd, args)
@@ -144,7 +144,7 @@ func NewCmdInstall() *cobra.Command {
 func NewCmdClean() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "clean",
-		Short:                 "Clean shell daemonset in kubernetes cluster",
+		Short:                 "清理Shell Pod服务",
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
 			RunClean(cmd, args)
@@ -156,7 +156,7 @@ func NewCmdClean() *cobra.Command {
 func NewCmdDeploy() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "deploy [command]",
-		Short:                 "Install/Clean shell daemonset in kubernetes cluster",
+		Short:                 "在集群部署基于Daemonset的Shell客户端",
 		DisableFlagsInUseLine: true,
 	}
 	cmd.AddCommand(NewCmdInstall())

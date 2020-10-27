@@ -13,8 +13,8 @@ var (
 )
 
 func AddFlags(flags *pflag.FlagSet) {
-	flags.StringVar(&kubeConfigStr, "kubeconfig", filepath.Join(os.Getenv("HOME"), ".kube", "config"), "Path to the kubeconfig file to use for CLI requests.")
+	flags.StringVar(&kubeConfigStr, "kubeconfig", filepath.Join(os.Getenv("HOME"), ".kube", "config"), "Kubernete集群的config配置文件。")
 
-	flags.StringVar(&ShellNamespace, "shellnamespace", "node-shell", "Shell pod namespaces.")
-	flags.StringVar(&ShellDaemonset, "shelldeploy", "node-shell-tool", "Shell pod daemonset.")
+	flags.StringVar(&ShellNamespace, "shellnamespace", "node-shell", "安装Shell客户端的命名空间名。")
+	flags.StringVar(&ShellDaemonset, "shelldeploy", "node-shell-tool", "安装Shell客户端的控制器名称。")
 }

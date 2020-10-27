@@ -95,7 +95,7 @@ func RunNode(cmd *cobra.Command, args []string) {
 func NewCmdNode() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "node",
-		Short:                 "Print information for kubernetes node",
+		Short:                 "打印更加细致的集群信息",
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
 			RunNode(cmd, args)

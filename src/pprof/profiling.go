@@ -13,7 +13,7 @@ var (
 )
 
 func AddProfilingFlags(flags *pflag.FlagSet) {
-	flags.StringVar(&pprofType, "pprof", "time", "Type of prof capture.")
+	flags.StringVar(&pprofType, "pprof", "time", "统计")
 }
 
 func InitProfiling() error {
@@ -36,7 +36,7 @@ func FlushProfiling() error {
 	case "time":
 		stopTime = time.Now()
 		duration := stopTime.Sub(startTime)
-		fmt.Printf("\nThis command use %f seconds.\n", duration.Seconds())
+		fmt.Printf("\n命令耗时 %f 秒。\n", duration.Seconds())
 	default:
 	}
 

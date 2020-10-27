@@ -12,7 +12,7 @@ func main() {
 
 	var rootCmd = &cobra.Command{
 		Use:   "ktool [sub]",
-		Short: "ND Kubernetes DevOps Tools.",
+		Short: "Kubernetes DevOps 工具集合",
 		Run:   runHelp,
 		PersistentPreRunE: func(*cobra.Command, []string) error {
 			return cusPprof.InitProfiling()

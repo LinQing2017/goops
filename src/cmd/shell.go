@@ -213,17 +213,17 @@ func startStream(method string, url *url.URL, config *restclient.Config, streamO
 }
 
 func addFlag(flags *pflag.FlagSet) {
-	flags.StringVar(&nodename, "node", "", "Node name for shell running.")
-	flags.StringVar(&nodefile, "nodefile", "", "Node file for shell running.")
+	flags.StringVar(&nodename, "node", "", "在指定宿主机节点执行shell命令。")
+	flags.StringVar(&nodefile, "nodefile", "", "通过文件指定要运行shell命令的宿主机。")
 
-	flags.IntVar(&httpTimeOutInSec, "timeout", 30, "Http timeout for kubeclient.")
-	flags.IntVar(&currentThreadNum, "thread", 1, "Current thread number for kubeclient request.")
+	flags.IntVar(&httpTimeOutInSec, "timeout", 30, "连接Kubelet超时时间。")
+	flags.IntVar(&currentThreadNum, "thread", 1, "执行shell命令的并发数。")
 }
 
 func NewCmdSh() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "sh [command]",
-		Short:                 "Run shell command in kubernetes cluster",
+		Short:                 "在宿主机的客户端中执行Shell命令",
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
 			RunShell(cmd, args)
