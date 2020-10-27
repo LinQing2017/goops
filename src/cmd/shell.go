@@ -23,8 +23,8 @@ import (
 )
 
 var (
-	nodename string
-	nodefile string
+	shNodename string
+	shNodefile string
 
 	httpTimeOutInSec int
 	currentThreadNum int
@@ -80,20 +80,20 @@ func getPodTargets(kubeClientSet *kubernetes.Clientset) map[string]*v1.Pod {
 	nodeTargets := make([]string, 0)
 
 	// 所有Node执行Shell
-	if strings.EqualFold(nodename, "") && strings.EqualFold(nodefile, "") {
+	if strings.EqualFold(shNodename, "") && strings.EqualFold(shNodefile, "") {
 		for _, node := range nodes.Items {
 			nodeTargets = append(nodeTargets, node.Name)
 		}
 	}
 
 	// 指定Node执行shell
-	if !strings.EqualFold(nodename, "") {
-		nodeTargets = append(nodeTargets, nodename)
+	if !strings.EqualFold(shNodename, "") {
+		nodeTargets = append(nodeTargets, shNodename)
 	}
 
 	// nodefile文件指定node执行shell
-	if strings.EqualFold(nodename, "") && !strings.EqualFold(nodefile, "") {
-		nodeTargets = util.ReadLine(nodefile)
+	if strings.EqualFold(shNodename, "") && !strings.EqualFold(shNodefile, "") {
+		nodeTargets = util.ReadLine(shNodefile)
 	}
 	if len(nodeTargets) == 0 {
 		panic(error2.NodeShellError{500, "选择节点异常"})
@@ -212,9 +212,9 @@ func startStream(method string, url *url.URL, config *restclient.Config, streamO
 	return exec.Stream(streamOptions)
 }
 
-func addFlag(flags *pflag.FlagSet) {
-	flags.StringVar(&nodename, "node", "", "在指定宿主机节点执行shell命令。")
-	flags.StringVar(&nodefile, "nodefile", "", "通过文件指定要运行shell命令的宿主机。")
+func addShFlag(flags *pflag.FlagSet) {
+	flags.StringVar(&shNodename, "node", "", "在指定宿主机节点执行shell命令。")
+	flags.StringVar(&shNodefile, "nodefile", "", "通过文件指定要运行shell命令的宿主机。")
 
 	flags.IntVar(&httpTimeOutInSec, "timeout", 30, "连接Kubelet超时时间。")
 	flags.IntVar(&currentThreadNum, "thread", 1, "执行shell命令的并发数。")
@@ -229,6 +229,6 @@ func NewCmdSh() *cobra.Command {
 			RunShell(cmd, args)
 		},
 	}
-	addFlag(cmd.Flags())
+	addShFlag(cmd.Flags())
 	return cmd
 }

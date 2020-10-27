@@ -31,6 +31,7 @@ func main() {
 	rootCmd.AddCommand(cmd.NewCmdNode())
 	rootCmd.AddCommand(cmd.NewCmdDeploy())
 	rootCmd.AddCommand(cmd.NewCmdSh())
+	rootCmd.AddCommand(cmd.NewCmdDist())
 
 	if err := execute(rootCmd); err != nil {
 		os.Exit(1)
