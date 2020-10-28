@@ -34,7 +34,7 @@ func RunNode(cmd *cobra.Command, args []string) {
 	}
 	nodeInfoList := make([]NodeInfo, len(nodes.Items))
 	shellPods, err := util.GetShellPodList(kubeClientSet)
-	allPodDist, _ := util.GetAllPodByNodeName(kubeClientSet, "")
+	allPodDist, _ := util.GetPodDict(kubeClientSet, "")
 	for i, node := range nodes.Items {
 		// 获取Role以及Label信息
 		role := ""

@@ -38,7 +38,7 @@ func GetShellPodList(kubeClientSet *kubernetes.Clientset) (*v1.PodList, error) {
 }
 
 // 根据Node返回当前Pod运行字典
-func GetAllPodByNodeName(kubeClientSet *kubernetes.Clientset, lableSelector string) (podDist map[string][]v1.Pod, err error) {
+func GetPodDict(kubeClientSet *kubernetes.Clientset, lableSelector string) (podDist map[string][]v1.Pod, err error) {
 	listOptions := metav1.ListOptions{}
 	if !strings.EqualFold(lableSelector, "") {
 		listOptions = metav1.ListOptions{
@@ -82,4 +82,48 @@ func PrintPodSimpleInfo(kubeClientSet *kubernetes.Clientset, namespace, lableSel
 
 	}
 	table.Output(podInfoList)
+}
+
+// 返回目标节点（Node List）的shell pod列表
+func GetShellPodDict(kubeClientSet *kubernetes.Clientset) map[string]*v1.Pod {
+
+	shellPods, _ := GetShellPodList(kubeClientSet)
+
+	// 根据参数判断需要传在那些Node执行Shell
+	nodeList := make([]string, 0)
+	// 所有Node执行Shell
+	if strings.EqualFold(config.ShellNodeName, "") && strings.EqualFold(config.ShellNodeNameFile, "") {
+		nodes, _ := kubeClientSet.CoreV1().Nodes().List(metav1.ListOptions{})
+		for _, node := range nodes.Items {
+			nodeList = append(nodeList, node.Name)
+		}
+	}
+
+	// 指定Node执行shell
+	if !strings.EqualFold(config.ShellNodeName, "") {
+		nodeList = append(nodeList, config.ShellNodeName)
+	}
+
+	// nodefile文件指定node执行shell
+	if strings.EqualFold(config.ShellNodeName, "") && !strings.EqualFold(config.ShellNodeNameFile, "") {
+		nodeList = ReadLine(config.ShellNodeNameFile)
+	}
+	if len(nodeList) == 0 {
+		panic(error2.NodeShellError{500, "选择节点异常"})
+	}
+
+	// 获取shellPod
+	podTarges := make(map[string]*v1.Pod, 0)
+	for _, nodename := range nodeList {
+		podTarges[nodename] = nil
+	}
+
+	// 填充Shellpod
+	for i, shellPod := range shellPods.Items {
+		_, isOk := podTarges[shellPod.Spec.NodeName]
+		if isOk {
+			podTarges[shellPod.Spec.NodeName] = &shellPods.Items[i]
+		}
+	}
+	return podTarges
 }
