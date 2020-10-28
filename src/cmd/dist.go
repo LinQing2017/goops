@@ -25,7 +25,7 @@ func RunDist(cmd *cobra.Command, args []string) {
 	}
 	srcPath := path.Clean(args[0])
 	destPath := path.Clean(args[1])
-	if path.IsAbs(destPath) {
+	if !path.IsAbs(destPath) {
 		panic("目标文件请指定绝对路径")
 	}
 	destDir := path.Dir(destPath)
