@@ -23,8 +23,8 @@ func RunDist(cmd *cobra.Command, args []string) {
 	if len(args) < 2 {
 		panic("请填写源路径和目标路径")
 	}
-	srcPath := path.Clean(args[0])
-	destPath := path.Clean(args[1])
+	srcPath := path.Base(args[0])
+	destPath := path.Join(path.Clean(args[1]) + "/" + srcPath)
 	if !path.IsAbs(destPath) {
 		panic("目标文件请指定绝对路径")
 	}
@@ -51,7 +51,7 @@ func RunDist(cmd *cobra.Command, args []string) {
 
 		go func() {
 			defer writer.Close()
-			util.MakeTar(srcPath, destDir, writer)
+			util.MakeTar(srcPath, destPath, writer)
 		}()
 
 		util.ExecCmd(kubeClientSet, kubeClientConfig, v, tarExecOps)
@@ -65,8 +65,8 @@ func addDistFlag(flags *pflag.FlagSet) {
 
 func NewCmdDist() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "dist [local file path] [host file path]",
-		Short:                 "分发文件到宿主机目录",
+		Use:                   "dist [local file path] [dist folder path]",
+		Short:                 "分发文件到宿主机目录，注意同名文件会被覆盖",
 		DisableFlagsInUseLine: true,
 		Run: func(cmd *cobra.Command, args []string) {
 			RunDist(cmd, args)
