@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	mapset "github.com/deckarep/golang-set"
 	"github.com/modood/table"
 	"github.com/spf13/cobra"
 	v1 "k8s.io/api/core/v1"
@@ -18,11 +19,20 @@ type NodeInfo struct {
 	UnSche string
 	Env    string
 	Type   string
+	Label  string
 	CPU    string
 	Memory string
 	Pod    string
 	Shell  string
 }
+
+var labelFilter = mapset.NewSet(
+	"beta.kubernetes.io/arch",
+	"beta.kubernetes.io/os",
+	"kubernetes.io/arch",
+	"kubernetes.io/hostname",
+	"kubernetes.io/os",
+)
 
 func RunNode(cmd *cobra.Command, args []string) {
 
@@ -38,17 +48,25 @@ func RunNode(cmd *cobra.Command, args []string) {
 	for i, node := range nodes.Items {
 		// 获取Role以及Label信息
 		role := ""
-		env_lable := make([]string, 0)
-		type_lable := make([]string, 0)
+		envLabel := make([]string, 0)
+		typeLabel := make([]string, 0)
+		commonLabel := make([]string, 0)
 		for k, v := range node.Labels {
-			switch v {
-			case "env":
-				env_lable = append(env_lable, k)
-			case "type":
-				type_lable = append(type_lable, k)
+			if strings.EqualFold(v, "env") {
+				envLabel = append(envLabel, k)
+				continue
+			}
+			if strings.EqualFold(v, "type") {
+				typeLabel = append(typeLabel, k)
+				continue
 			}
 			if strings.HasPrefix(k, "node-role.kubernetes.io") {
 				role = strings.Split(k, "/")[1]
+				continue
+			}
+			if !labelFilter.Contains(k) {
+				commonLabel = append(commonLabel, k+"="+v)
+				continue
 			}
 		}
 
@@ -76,8 +94,9 @@ func RunNode(cmd *cobra.Command, args []string) {
 			node.Name,
 			role,
 			unschedulable,
-			strings.Join(env_lable, ","),
-			strings.Join(type_lable, ","),
+			strings.Join(envLabel, ","),
+			strings.Join(typeLabel, ","),
+			strings.Join(commonLabel, ","),
 			node.Status.Capacity.Cpu().String(),
 			strconv.FormatFloat(float64(node.Status.Capacity.Memory().Value())/1024/1024/1024, 'f', 2, 64) + " Gi",
 			strconv.Itoa(len(podListOnNode)) + "/" + node.Status.Capacity.Pods().String(),
