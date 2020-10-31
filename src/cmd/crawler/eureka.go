@@ -2,6 +2,7 @@ package crawler
 
 import (
 	"fmt"
+	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/modood/table"
 	"github.com/spf13/cobra"
@@ -9,15 +10,20 @@ import (
 	"kube-tools/src/util"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
 var (
-	eurekaNetFilter string
+	eurekaNetFilter  string
+	eurekaPortFilter string
+	outputFilename   string
 )
 
 func addEurekaFlag(flags *pflag.FlagSet) {
-	flags.StringVar(&eurekaNetFilter, "net", "10.187.0.0/16", "过滤对应网段。")
+	flags.StringVar(&eurekaNetFilter, "net", "", "过滤对应网段。")
+	flags.StringVar(&eurekaPortFilter, "port", "", "过滤对应端口。")
+	flags.StringVar(&outputFilename, "file", "", "输出结果数据到Excel文件。")
 }
 
 func NewCmdEureka() *cobra.Command {
@@ -35,7 +41,8 @@ func NewCmdEureka() *cobra.Command {
 
 type Instance struct {
 	Application string
-	Upstreams   string
+	Upstreams   []string
+	AppId       []string
 }
 
 func RunEureka(cmd *cobra.Command, args []string) {
@@ -57,25 +64,69 @@ func RunEureka(cmd *cobra.Command, args []string) {
 				colum := row.Find("td")
 				instance := Instance{
 					colum.First().Text(),
-					"",
+					make([]string, 0),
+					make([]string, 0),
 				}
 				colum.Find("a").Each(
 					func(i int, target *goquery.Selection) {
 						href, isExit := target.Attr("href")
 						if isExit {
-
 							u, _ := url.Parse(href)
-							instance.Upstreams = u.Host
+							isFilter := false
+							if !strings.EqualFold(eurekaNetFilter, "") && !util.IpaddrBelong(u.Host, eurekaNetFilter) {
+								isFilter = true
+							}
+							if !strings.EqualFold(eurekaPortFilter, "") && !strings.EqualFold(u.Port(), eurekaPortFilter) {
+								isFilter = true
+							}
+							if !isFilter {
+								instance.Upstreams = append(instance.Upstreams, u.Host)
+								instance.AppId = append(instance.AppId, strings.Split(target.Text(), "-")[0])
+							}
 						}
 					})
-				if util.IpaddrBelong(instance.Upstreams, eurekaNetFilter) {
+				if len(instance.Upstreams) > 0 {
 					instanceList = append(instanceList, instance)
 				}
-
 			})
 		}
 	})
 
 	instanceStr := table.Table(instanceList)
 	fmt.Println(instanceStr)
+	excelOutput(instanceList)
+}
+
+func excelOutput(instances []Instance) {
+	if strings.EqualFold(outputFilename, "") {
+		return
+	}
+
+	title := map[string]string{"A1": "编号", "B1": "应用名称", "C1": "服务端口", "D1": "APP-ID"}
+	f := excelize.NewFile()
+	for k, v := range title {
+		f.SetCellValue("Sheet1", k, v)
+	}
+	id := 1
+	for _, instance := range instances {
+
+		for i, upstream := range instance.Upstreams {
+			rowNum := strconv.Itoa(id + 1)
+			row := map[string]string{
+				"A" + rowNum: strconv.Itoa(id),
+				"B" + rowNum: instance.Application,
+				"C" + rowNum: upstream,
+				"D" + rowNum: instance.AppId[i],
+			}
+			for k, v := range row {
+				f.SetCellValue("Sheet1", k, v)
+			}
+			id += 1
+		}
+
+	}
+
+	if err := f.SaveAs(outputFilename + ".xlsx"); err != nil {
+		fmt.Println(err)
+	}
 }

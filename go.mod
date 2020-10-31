@@ -3,6 +3,7 @@ module kube-tools
 go 1.15
 
 require (
+	github.com/360EntSecGroup-Skylar/excelize/v2 v2.3.1
 	github.com/PuerkitoBio/goquery v1.6.0
 	github.com/deckarep/golang-set v1.7.1
 	github.com/imdario/mergo v0.3.11 // indirect

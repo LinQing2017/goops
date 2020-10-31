@@ -1,12 +1,14 @@
 package util
 
 import (
+	"net"
 	"strconv"
 	"strings"
 )
 
 // 判断IP 是否属于cidr网段
 func IpaddrBelong(ip, cidr string) bool {
+
 	ipAddr := strings.Split(ip, `.`)
 	if len(ipAddr) < 4 {
 		return false
@@ -15,9 +17,14 @@ func IpaddrBelong(ip, cidr string) bool {
 	if len(cidrArr) < 2 {
 		return false
 	}
+
 	var tmp = make([]string, 0)
-	for key, value := range strings.Split(`255.255.0.0`, `.`) {
-		iint, _ := strconv.Atoi(value)
+
+	maskBits, _ := strconv.Atoi(cidrArr[1])
+	cidrMask := net.CIDRMask(maskBits, 32) // 获取掩码
+
+	for key, value := range cidrMask {
+		iint := int(value)
 
 		iint2, _ := strconv.Atoi(ipAddr[key])
 
