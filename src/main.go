@@ -9,10 +9,9 @@ import (
 )
 
 func main() {
-
 	var rootCmd = &cobra.Command{
 		Use:   "ktool [sub]",
-		Short: "Kubernetes DevOps 工具集合",
+		Short: "ND Kubernetes 运维违规小助手",
 		Run:   runHelp,
 		PersistentPreRunE: func(*cobra.Command, []string) error {
 			return cusPprof.InitProfiling()
@@ -27,11 +26,11 @@ func main() {
 	config.AddFlags(flags)
 
 	cusPprof.AddProfilingFlags(flags)
-
 	rootCmd.AddCommand(cmd.NewCmdNode())
 	rootCmd.AddCommand(cmd.NewCmdDeploy())
 	rootCmd.AddCommand(cmd.NewCmdSh())
 	rootCmd.AddCommand(cmd.NewCmdDist())
+	rootCmd.AddCommand(cmd.NewCmdCrawler())
 
 	if err := execute(rootCmd); err != nil {
 		os.Exit(1)

@@ -3,6 +3,8 @@ module kube-tools
 go 1.15
 
 require (
+	github.com/PuerkitoBio/goquery v1.6.0
+	github.com/deckarep/golang-set v1.7.1
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/modood/table v0.0.0-20200225102042-88de94bb9876
 	github.com/spf13/cobra v0.0.5
@@ -13,5 +15,4 @@ require (
 	k8s.io/client-go v0.16.15
 	k8s.io/klog v1.0.0 // indirect
 	k8s.io/utils v0.0.0-20200912215256-4140de9c8800 // indirect
-	github.com/deckarep/golang-set v1.7.1
 )
