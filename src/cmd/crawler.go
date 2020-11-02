@@ -11,7 +11,6 @@ var (
 )
 
 func addCrawlerFlag(flags *pflag.FlagSet) {
-	flags.StringVar(&CrawlerOutput, "output", "", "输出抓取结果到Execel文件。")
 }
 
 func NewCmdCrawler() *cobra.Command {
