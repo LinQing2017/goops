@@ -14,16 +14,17 @@ import (
 )
 
 type NodeInfo struct {
-	Name   string
-	Role   string
-	UnSche string
-	Env    string
-	Type   string
-	Label  string
-	CPU    string
-	Memory string
-	Pod    string
-	Shell  string
+	Name           string
+	Role           string
+	UnSche         string
+	Env            string
+	Type           string
+	Label          string
+	CPU            string
+	Memory         string
+	MemoryRequests string
+	Pod            string
+	Shell          string
 }
 
 var labelFilter = mapset.NewSet(
@@ -84,6 +85,16 @@ func RunNode(cmd *cobra.Command, args []string) {
 		// 列出获取该节点的所有Pod
 		podListOnNode := allPodDist[node.Name]
 
+		// 计算Pod申请的内存资源
+		var nodeReqMemory int64 = 0
+		nodeCapMemory := node.Status.Capacity.Memory().Value()
+		for _, pod := range podListOnNode {
+			for _, c := range pod.Spec.Containers {
+				nodeReqMemory += c.Resources.Requests.Memory().Value()
+			}
+		}
+		reqMemoryPercentage := float64(nodeReqMemory) / float64(nodeCapMemory)
+
 		// 获取节点的状态
 		var unschedulable = ""
 		if node.Spec.Unschedulable {
@@ -98,7 +109,8 @@ func RunNode(cmd *cobra.Command, args []string) {
 			strings.Join(typeLabel, ","),
 			strings.Join(commonLabel, ","),
 			node.Status.Capacity.Cpu().String(),
-			strconv.FormatFloat(float64(node.Status.Capacity.Memory().Value())/1024/1024/1024, 'f', 2, 64) + " Gi",
+			strconv.FormatFloat(float64(nodeCapMemory)/1024/1024/1024, 'f', 2, 64) + " Gi",
+			strconv.FormatFloat(float64(nodeReqMemory)/1024/1024/1024, 'f', 2, 64) + " Gi (" + strconv.FormatFloat(reqMemoryPercentage*100, 'f', 2, 64) + "%)",
 			strconv.Itoa(len(podListOnNode)) + "/" + node.Status.Capacity.Pods().String(),
 			shellPod,
 		}

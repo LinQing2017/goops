@@ -31,6 +31,7 @@ func main() {
 	rootCmd.AddCommand(cmd.NewCmdSh())
 	rootCmd.AddCommand(cmd.NewCmdDist())
 	rootCmd.AddCommand(cmd.NewCmdCrawler())
+	rootCmd.AddCommand(cmd.NewCmdDocker())
 
 	if err := execute(rootCmd); err != nil {
 		os.Exit(1)
