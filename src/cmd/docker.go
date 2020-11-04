@@ -3,20 +3,20 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"kube-tools/src/cmd/docker"
+	"kube-tools/src/cmd/check"
 )
 
-func addDockerFlag(flags *pflag.FlagSet) {
+func addCheckFlag(flags *pflag.FlagSet) {
 }
 
-func NewCmdDocker() *cobra.Command {
+func NewCmdCheck() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "docker [sub]",
-		Short:                 "Docker 工具",
+		Use:                   "check [sub]",
+		Short:                 "检查工具",
 		DisableFlagsInUseLine: true,
 	}
 
-	addDockerFlag(cmd.Flags())
-	cmd.AddCommand(docker.NewCmdDisk())
+	addCheckFlag(cmd.Flags())
+	cmd.AddCommand(check.NewCmdDisk())
 	return cmd
 }

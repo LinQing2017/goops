@@ -9,6 +9,11 @@ import (
 )
 
 func main() {
+
+	kubetools()
+}
+
+func kubetools() {
 	var rootCmd = &cobra.Command{
 		Use:   "ktool [sub]",
 		Short: "ND Kubernetes 运维违规小助手",
