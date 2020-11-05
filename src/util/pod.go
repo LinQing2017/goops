@@ -16,25 +16,21 @@ type PodSimpleInfo struct {
 	Node   string
 }
 
-// 获取当前所有 shell pod 的列表
-func GetShellPodList(kubeClientSet *kubernetes.Clientset) (*v1.PodList, error) {
+// 返回指定Pod列表
+func GetPodList(kubeClientSet *kubernetes.Clientset, namespaceStr, lableSelector string) (pods *v1.PodList, err error) {
 
-	_, err := kubeClientSet.CoreV1().Namespaces().Get(config.ShellNamespace, metav1.GetOptions{
-		TypeMeta: metav1.TypeMeta{Kind: "Namespace", APIVersion: "v1"},
-	})
-	if err != nil {
-		err = &error2.NodeShellError{500, "Node Shell 工具没有安装或者有异常"}
-		return nil, err
+	listOptions := metav1.ListOptions{}
+	if !strings.EqualFold(lableSelector, "") {
+		listOptions = metav1.ListOptions{
+			TypeMeta:      metav1.TypeMeta{},
+			LabelSelector: lableSelector,
+		}
 	}
-	var pods *v1.PodList
-	pods, err = kubeClientSet.CoreV1().Pods(config.ShellNamespace).List(metav1.ListOptions{
-		TypeMeta:      metav1.TypeMeta{},
-		LabelSelector: "name=" + config.ShellDaemonset,
-	})
+	pods, err = kubeClientSet.CoreV1().Pods(namespaceStr).List(listOptions)
 	if err != nil || len(pods.Items) == 0 {
-		err = &error2.NodeShellError{500, "Node Shell 工具没有安装或者有异常"}
+		err = &error2.NodeShellError{500, "获取Pod列表异常"}
 	}
-	return pods, err
+	return
 }
 
 // 根据Node返回当前Pod运行字典
@@ -87,7 +83,7 @@ func PrintPodSimpleInfo(kubeClientSet *kubernetes.Clientset, namespace, lableSel
 // 返回目标节点（Node List）的shell pod列表
 func GetShellPodDict(kubeClientSet *kubernetes.Clientset) map[string]*v1.Pod {
 
-	shellPods, _ := GetShellPodList(kubeClientSet)
+	shellPods, _ := GetPodList(kubeClientSet, config.ShellNamespace, "name="+config.ShellDaemonset)
 
 	// 根据参数判断需要传在那些Node执行Shell
 	nodeList := make([]string, 0)

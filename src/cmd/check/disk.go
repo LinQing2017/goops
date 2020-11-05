@@ -1,13 +1,12 @@
 package check
 
 import (
-	"context"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
+	"kube-tools/src/util"
+	"strconv"
+	"strings"
 )
 
 func addDiskFlag(flags *pflag.FlagSet) {
@@ -28,17 +27,26 @@ func NewCmdDisk() *cobra.Command {
 }
 
 func RunDisk(cmd *cobra.Command, args []string) {
-	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithHost("http://192.168.56.104:4243"))
-	if err != nil {
-		panic(err)
-	}
+	//cli := util.DockerClient("tcp://172.24.135.47:4243")
+	////containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
+	//if err != nil {
+	//	panic(err)
+	//}
 
-	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{})
-	if err != nil {
-		panic(err)
-	}
+	kubeClientSet, _ := util.KubeClient(cmd)
 
-	for _, container := range containers {
-		fmt.Printf("%s %s\n", container.ID[:10], container.Image)
+	allPods, _ := util.GetPodDict(kubeClientSet, "")
+
+	pods := allPods["172.24.135.10"]
+
+	for _, pod := range pods {
+
+		for _, container := range pod.Status.ContainerStatuses {
+
+			containerDataPath := strings.Replace(container.ContainerID, "docker://", "/data/var/lib/docker/containers/", -1)
+			size, _ := util.CalculateDirSize(containerDataPath)
+			fmt.Printf("%s : %s mb\n", containerDataPath, strconv.Itoa(int(size)))
+		}
+
 	}
 }

@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// 按行读取文件
 func ReadLine(filePth string) []string {
 	f, err := os.Open(filePth)
 	lines := make([]string, 0)
@@ -38,6 +39,7 @@ func ReadLine(filePth string) []string {
 	return lines
 }
 
+// 将指定文件目录及其子目录的内容压缩成tar，写入到文件流中
 func MakeTar(srcPath, destPath string, writer io.Writer) error {
 	// TODO: use compression here?
 	tarWriter := tar.NewWriter(writer)
@@ -116,4 +118,27 @@ func recursiveTar(srcBase, srcFile, destBase, destFile string, tw *tar.Writer) e
 		}
 	}
 	return nil
+}
+
+// 计算目录的大小
+func CalculateDirSize(dirpath string) (dirsize int64, err error) {
+	err = os.Chdir(dirpath)
+	if err != nil {
+		return
+	}
+	files, err := ioutil.ReadDir(".")
+	if err != nil {
+		return
+	}
+
+	for _, file := range files {
+		dirsize += file.Size()
+		if file.Mode().IsDir() {
+			subDirSize, err2 := CalculateDirSize(path.Join(dirpath, file.Name()))
+			if err2 == nil {
+				dirsize += subDirSize
+			}
+		}
+	}
+	return
 }

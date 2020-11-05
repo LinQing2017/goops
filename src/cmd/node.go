@@ -5,7 +5,6 @@ import (
 	mapset "github.com/deckarep/golang-set"
 	"github.com/modood/table"
 	"github.com/spf13/cobra"
-	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"kube-tools/src/util"
 	"sort"
@@ -44,7 +43,7 @@ func RunNode(cmd *cobra.Command, args []string) {
 		panic(err.Error())
 	}
 	nodeInfoList := make([]NodeInfo, len(nodes.Items))
-	shellPods, err := util.GetShellPodList(kubeClientSet)
+	shellPods := util.GetShellPodDict(kubeClientSet)
 	allPodDist, _ := util.GetPodDict(kubeClientSet, "")
 	for i, node := range nodes.Items {
 		// 获取Role以及Label信息
@@ -72,14 +71,10 @@ func RunNode(cmd *cobra.Command, args []string) {
 		}
 
 		// 获取ShellPod名称
-		shellPod := ""
-		if shellPods != nil && err == nil {
-			for _, pod := range shellPods.Items {
-				if strings.EqualFold(pod.Status.HostIP, node.Name) && pod.Status.Phase == v1.PodRunning {
-					shellPod = pod.Name
-					break
-				}
-			}
+		shellPod := shellPods[node.Name]
+		shellPodName := ""
+		if shellPod != nil {
+			shellPodName = shellPod.Name
 		}
 
 		// 列出获取该节点的所有Pod
@@ -112,7 +107,7 @@ func RunNode(cmd *cobra.Command, args []string) {
 			strconv.FormatFloat(float64(nodeCapMemory)/1024/1024/1024, 'f', 2, 64) + " Gi",
 			strconv.FormatFloat(float64(nodeReqMemory)/1024/1024/1024, 'f', 2, 64) + " Gi (" + strconv.FormatFloat(reqMemoryPercentage*100, 'f', 2, 64) + "%)",
 			strconv.Itoa(len(podListOnNode)) + "/" + node.Status.Capacity.Pods().String(),
-			shellPod,
+			shellPodName,
 		}
 		nodeInfoList[i] = nodeInfo
 	}
