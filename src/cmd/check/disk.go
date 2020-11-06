@@ -8,7 +8,6 @@ import (
 	"kube-tools/src/util"
 	"os"
 	"path"
-	"strconv"
 	"strings"
 )
 
@@ -80,8 +79,8 @@ func RunDisk(cmd *cobra.Command, args []string) {
 		}
 		info := DiskUsageInfo{
 			PodName:       pod.Name,
-			ContainerSize: strconv.FormatFloat(float64(containerSize)/1024/1024, 'f', 2, 64) + " Mi",
-			LogSize:       strconv.FormatFloat(float64(logDirSize)/1024/1024, 'f', 2, 64) + " Mi",
+			ContainerSize: util.FormatByte(containerSize),
+			LogSize:       util.FormatByte(logDirSize),
 		}
 		diskUsageInfos = append(diskUsageInfos, info)
 	}

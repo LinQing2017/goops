@@ -104,8 +104,8 @@ func RunNode(cmd *cobra.Command, args []string) {
 			strings.Join(typeLabel, ","),
 			strings.Join(commonLabel, ","),
 			node.Status.Capacity.Cpu().String(),
-			strconv.FormatFloat(float64(nodeCapMemory)/1024/1024/1024, 'f', 2, 64) + " Gi",
-			strconv.FormatFloat(float64(nodeReqMemory)/1024/1024/1024, 'f', 2, 64) + " Gi (" + strconv.FormatFloat(reqMemoryPercentage*100, 'f', 2, 64) + "%)",
+			util.FormatByte(nodeCapMemory),
+			util.FormatByte(nodeReqMemory) + " (" + strconv.FormatFloat(reqMemoryPercentage*100, 'f', 2, 64) + "%)",
 			strconv.Itoa(len(podListOnNode)) + "/" + node.Status.Capacity.Pods().String(),
 			shellPodName,
 		}
