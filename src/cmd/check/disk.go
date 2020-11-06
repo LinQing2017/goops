@@ -21,7 +21,7 @@ var (
 func addDiskFlag(flags *pflag.FlagSet) {
 	flags.StringVar(&nodename, "nodename", "", "当前节点Node名称。")
 	flags.StringVar(&dockerRootPath, "docker-root-path", "/data/var/lib/docker", "docker服务数据目录。")
-	flags.StringVar(&logRootPath, "log-root-path", "/data/container_logs", "容器日志根目录。")
+	flags.StringVar(&logRootPath, "log-root-path", "/data/container_logs", "自定义容器日志根目录。")
 	flags.BoolVar(&cleanLog, "cleanLog", false, "是否清理容器日志。")
 }
 
@@ -41,7 +41,8 @@ func NewCmdDisk() *cobra.Command {
 type DiskUsageInfo struct {
 	PodName       string
 	ContainerSize string
-	LogSize       string
+	DockerLog     string
+	UserLog       string
 }
 
 func RunDisk(cmd *cobra.Command, args []string) {
@@ -61,14 +62,18 @@ func RunDisk(cmd *cobra.Command, args []string) {
 	diskUsageInfos := make([]DiskUsageInfo, 0)
 	// 统计运行Pod磁盘使用情况
 	dockerContainerBasePath := path.Join(dockerRootPath, "containers/")
+	dockercli := util.DockerClient("")
 	for _, pod := range pods {
 
 		var containerSize int64
+		var dockerLogSize int64
 
 		for _, container := range pod.Status.ContainerStatuses {
 			containerDataPath := path.Join(dockerContainerBasePath, strings.Replace(container.ContainerID, "docker://", "", -1))
-			size, _ := util.CalculateDirSize(containerDataPath)
-			containerSize += size
+			logSize, _ := util.CalculateDirSize(containerDataPath)
+			dockerLogSize += logSize
+			cSize := util.ContainerSize(container.ContainerID, dockercli)
+			containerSize += cSize
 		}
 		logDirPath := path.Join(logRootPath, pod.Name)
 
@@ -80,7 +85,8 @@ func RunDisk(cmd *cobra.Command, args []string) {
 		info := DiskUsageInfo{
 			PodName:       pod.Name,
 			ContainerSize: util.FormatByte(containerSize),
-			LogSize:       util.FormatByte(logDirSize),
+			DockerLog:     util.FormatByte(logDirSize),
+			UserLog:       util.FormatByte(logDirSize),
 		}
 		diskUsageInfos = append(diskUsageInfos, info)
 	}

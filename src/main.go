@@ -5,12 +5,15 @@ import (
 	"kube-tools/src/cmd"
 	"kube-tools/src/config"
 	cusPprof "kube-tools/src/pprof"
+	"kube-tools/src/util"
 	"os"
 )
 
 func main() {
 
-	kubetools()
+	//kubetools()
+	dockerCli := util.DockerClient("tcp://192.168.56.104:4243")
+	util.ContainerSize("d98d31e421d5cf5bc4e11edf85a702238d6959a3a065932d4202738107811722", dockerCli)
 }
 
 func kubetools() {

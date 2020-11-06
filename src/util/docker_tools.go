@@ -1,6 +1,7 @@
 package util
 
 import (
+	"context"
 	"github.com/docker/docker/client"
 	"strings"
 )
@@ -24,4 +25,13 @@ func DockerClient(host string) *client.Client {
 	}
 
 	return c
+}
+
+// 获取容器运行时占用的磁盘空间
+func ContainerSize(containerID string, cli *client.Client) int64 {
+	containerInfo, _ := cli.ContainerInspect(context.Background(), containerID)
+	upperDir := containerInfo.GraphDriver.Data["UpperDir"]
+
+	upperDirSize, _ := CalculateDirSize(upperDir)
+	return upperDirSize
 }
