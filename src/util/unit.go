@@ -25,5 +25,5 @@ func FormatByte(b int64) string {
 		return strconv.FormatFloat(float64(b)/float64(KB), 'f', 2, 64) + " Ki"
 	}
 
-	return strconv.FormatFloat(float64(b), 'f', 2, 64) + " b"
+	return strconv.FormatFloat(float64(b), 'f', 2, 64)
 }

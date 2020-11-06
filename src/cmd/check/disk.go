@@ -66,7 +66,7 @@ func RunDisk(cmd *cobra.Command, args []string) {
 		var containerSize int64
 
 		for _, container := range pod.Status.ContainerStatuses {
-			containerDataPath := strings.Replace(container.ContainerID, "docker://", dockerContainerBasePath, -1)
+			containerDataPath := path.Join(dockerContainerBasePath, strings.Replace(container.ContainerID, "docker://", "", -1))
 			size, _ := util.CalculateDirSize(containerDataPath)
 			containerSize += size
 		}
