@@ -3,6 +3,7 @@ package util
 import (
 	"context"
 	"github.com/docker/docker/client"
+	"path"
 	"strings"
 )
 
@@ -31,7 +32,14 @@ func DockerClient(host string) *client.Client {
 func ContainerSize(containerID string, cli *client.Client) int64 {
 	containerInfo, _ := cli.ContainerInspect(context.Background(), containerID)
 	upperDir := containerInfo.GraphDriver.Data["UpperDir"]
-
 	upperDirSize, _ := CalculateDirSize(upperDir)
 	return upperDirSize
+}
+
+// 获取容器日志的磁盘使用空间
+func ContainerLogSize(containerID string, cli *client.Client) int64 {
+	dockerInfo, _ := cli.Info(context.Background())
+	containerDataPath := path.Join(dockerInfo.DockerRootDir, containerID)
+	logSize, _ := CalculateDirSize(containerDataPath)
+	return logSize
 }
