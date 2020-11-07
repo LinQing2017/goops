@@ -39,7 +39,7 @@ func ContainerSize(containerID string, cli *client.Client) int64 {
 // 获取容器日志的磁盘使用空间
 func ContainerLogSize(containerID string, cli *client.Client) int64 {
 	dockerInfo, _ := cli.Info(context.Background())
-	containerDataPath := path.Join(dockerInfo.DockerRootDir, containerID)
+	containerDataPath := path.Join(dockerInfo.DockerRootDir, "containers", containerID)
 	logSize, _ := CalculateDirSize(containerDataPath)
 	return logSize
 }
