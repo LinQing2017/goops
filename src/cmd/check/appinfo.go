@@ -19,6 +19,7 @@ type AppInfo struct {
 	Name    string
 	APPID   string
 	PodNode []string
+	Type    []string
 }
 
 var (
@@ -83,6 +84,7 @@ func RunAppInfo(cmd *cobra.Command, args []string) {
 			if pod.Status.Phase != v1.PodRunning {
 				continue
 			}
+			appinfo.Type = labelParse(pod.Spec.NodeSelector)
 			appinfo.PodNode = append(appinfo.PodNode, pod.Status.HostIP)
 		}
 		appinfo.PodNode = util.RemoveRepeatedElement(appinfo.PodNode)
@@ -122,6 +124,16 @@ func getClusterInfo() map[string][]entity.ClusterInfo {
 	return dict
 }
 
+func labelParse(labels map[string]string) []string {
+	typeLabels := make([]string, 0)
+	for k, v := range labels {
+		if strings.EqualFold(v, "type") {
+			typeLabels = append(typeLabels, k)
+		}
+	}
+	return typeLabels
+}
+
 func filter(appInfoList []AppInfo) []AppInfo {
 	if strings.EqualFold(nodeFilter, "") {
 		return appInfoList
@@ -145,7 +157,7 @@ func filter(appInfoList []AppInfo) []AppInfo {
 
 func excelOutput(appInfoList []AppInfo) {
 
-	title := map[string]string{"A1": "序号", "B1": "应用名称", "C1": "命名空间", "D1": "Pod运行节点"}
+	title := map[string]string{"A1": "序号", "B1": "应用名称", "C1": "命名空间", "D1": "Pod运行节点", "E1": "应用类型"}
 	f := excelize.NewFile()
 	for k, v := range title {
 		f.SetCellValue("Sheet1", k, v)
@@ -159,6 +171,7 @@ func excelOutput(appInfoList []AppInfo) {
 			"B" + rowNum: appinfo.Name,
 			"C" + rowNum: appinfo.APPID,
 			"D" + rowNum: strings.Join(appinfo.PodNode, ","),
+			"E" + rowNum: strings.Join(appinfo.Type, ","),
 		}
 		for k, v := range row {
 			f.SetCellValue("Sheet1", k, v)
