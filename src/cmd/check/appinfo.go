@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	mapset "github.com/deckarep/golang-set"
+	"github.com/modood/table"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"go.mongodb.org/mongo-driver/bson"
@@ -30,6 +31,7 @@ var (
 	mongoUrl    string
 	mongoDB     string
 	nodeFilter  string
+	isPrint     bool
 )
 
 func addAppInfoFlag(flags *pflag.FlagSet) {
@@ -37,7 +39,8 @@ func addAppInfoFlag(flags *pflag.FlagSet) {
 	flags.StringVar(&mongoPasswd, "mongo-password", "lcsX5zq9QEUW", "SDP-K8S Mongodb 密码。")
 	flags.StringVar(&mongoDB, "mongo-database", "qa_mdb_k8s_paas_api", "SDP-K8S Mongodb 数据库名称。")
 	flags.StringVar(&mongoUrl, "mongo-url", "m3.all.debug2.mongod3.sdp:34003,m1.all.debug2.mongod3.sdp:34003,m2.all.debug2.mongod3.sdp:34003", "SDP-K8S Mongodb 地址。")
-	flags.StringVar(&nodeFilter, "node-filter", "172.24.135.12", "根据node名称过滤信息，使用逗号分隔")
+	flags.StringVar(&nodeFilter, "node-filter", "", "根据node名称过滤信息，使用逗号分隔")
+	flags.BoolVar(&isPrint, "print", false, "输出到屏幕。")
 }
 
 func NewCmdAppInfo() *cobra.Command {
@@ -90,6 +93,10 @@ func RunAppInfo(cmd *cobra.Command, args []string) {
 
 	appinfoFilter := filter(appinfoList)
 	excelAppInfo(appinfoFilter)
+	if isPrint {
+		infoStr := table.Table(appinfoFilter)
+		fmt.Println(infoStr)
+	}
 }
 
 func getClusterInfo() map[string][]entity.ClusterInfo {
