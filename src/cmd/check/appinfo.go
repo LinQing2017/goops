@@ -9,8 +9,10 @@ import (
 	"github.com/spf13/pflag"
 	"go.mongodb.org/mongo-driver/bson"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes"
 	"kube-tools/src/cmd/check/entity"
 	"kube-tools/src/util"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -54,8 +56,68 @@ func NewCmdAppInfo() *cobra.Command {
 func RunAppInfo(cmd *cobra.Command, args []string) {
 	clusterInfoDict := getClusterInfo()
 	kubeClient, _ := util.KubeClient(cmd)
-	appinfoList := make([]AppInfo, 0)
+	podNSDict := getPodNSDict(kubeClient)
 
+	appinfoList := make([]AppInfo, 0)
+	for namespace, podsOnNS := range podNSDict {
+
+		clist := clusterInfoDict[namespace]
+		if clist == nil {
+			continue
+		}
+		appinfo := AppInfo{
+			Name:    clist[0].AppName,
+			APPID:   namespace,
+			PodNode: make([]string, 0),
+			Type:    make([]string, 0),
+		}
+		for _, pod := range podsOnNS {
+			if pod.Status.Phase != v1.PodRunning {
+				continue
+			}
+			appinfo.PodNode = append(appinfo.PodNode, pod.Status.HostIP)
+			for k, v := range pod.Spec.NodeSelector {
+				if strings.EqualFold(v, "type") {
+					appinfo.Type = append(appinfo.Type, k)
+				}
+			}
+		}
+		appinfo.PodNode = util.RemoveRepeatedElement(appinfo.PodNode)
+		sort.Strings(appinfo.PodNode)
+		appinfo.Type = util.RemoveRepeatedElement(appinfo.Type)
+		appinfoList = append(appinfoList, appinfo)
+	}
+
+	appinfoFilter := filter(appinfoList)
+	excelAppInfo(appinfoFilter)
+}
+
+func getClusterInfo() map[string][]entity.ClusterInfo {
+
+	// 设置客户端连接配置
+	mongoURI := "mongodb://" + mongoUser + ":" + mongoPasswd + "@" + mongoUrl + "/" + mongoDB + "?autoConnectRetry=true"
+	client := util.MongoClient(mongoURI)
+
+	// 指定获取要操作的数据集
+	collection := client.Database(mongoDB).Collection("cluster")
+	records, _ := collection.Find(context.TODO(), bson.M{})
+	k8sClusters := make([]entity.ClusterInfo, 0)
+	records.All(context.TODO(), &k8sClusters)
+	dict := map[string][]entity.ClusterInfo{}
+	for _, c := range k8sClusters {
+		clusters := dict[c.AppId]
+		if clusters == nil {
+			clusters = make([]entity.ClusterInfo, 0)
+		}
+		dict[c.AppId] = append(clusters, c)
+	}
+	// 断开连接
+	util.MongoDisconnect(client)
+
+	return dict
+}
+
+func getPodNSDict(kubeClient *kubernetes.Clientset) map[string][]v1.Pod {
 	pods, _ := util.GetPodList(kubeClient, "", "")
 	podNSDict := make(map[string][]v1.Pod)
 	for _, pod := range pods.Items {
@@ -67,71 +129,7 @@ func RunAppInfo(cmd *cobra.Command, args []string) {
 		podListOnNS = append(podListOnNS, pod)
 		podNSDict[key] = podListOnNS
 	}
-
-	for namespace, podsOnNS := range podNSDict {
-
-		clist := clusterInfoDict[namespace]
-		if clist == nil {
-			continue
-		}
-		appinfo := AppInfo{
-			Name:    clist[0].AppName,
-			APPID:   namespace,
-			PodNode: make([]string, 0),
-		}
-
-		for _, pod := range podsOnNS {
-			if pod.Status.Phase != v1.PodRunning {
-				continue
-			}
-			appinfo.Type = labelParse(pod.Spec.NodeSelector)
-			appinfo.PodNode = append(appinfo.PodNode, pod.Status.HostIP)
-		}
-		appinfo.PodNode = util.RemoveRepeatedElement(appinfo.PodNode)
-		appinfoList = append(appinfoList, appinfo)
-
-	}
-
-	appinfoFilter := filter(appinfoList)
-	excelOutput(appinfoFilter)
-}
-
-func getClusterInfo() map[string][]entity.ClusterInfo {
-
-	// 设置客户端连接配置
-	mongoURI := "mongodb://" + mongoUser + ":" + mongoPasswd + "@" + mongoUrl + "/" + mongoDB + "?autoConnectRetry=true"
-	client := util.MongoClient(mongoURI)
-
-	// 指定获取要操作的数据集
-	collection := client.Database(mongoDB).Collection("cluster")
-	//filter := bson.M{"env_type": "wx"}
-	filter := bson.M{}
-	records, _ := collection.Find(context.TODO(), filter)
-
-	dict := map[string][]entity.ClusterInfo{}
-
-	for records.Next(context.TODO()) {
-		d := entity.ParseClusterInfo(&records.Current)
-		clusters := dict[d.AppId]
-		if clusters == nil {
-			clusters = make([]entity.ClusterInfo, 0)
-		}
-		dict[d.AppId] = append(clusters, d)
-	}
-	// 断开连接
-	util.MongoDisconnect(client)
-
-	return dict
-}
-
-func labelParse(labels map[string]string) []string {
-	typeLabels := make([]string, 0)
-	for k, v := range labels {
-		if strings.EqualFold(v, "type") {
-			typeLabels = append(typeLabels, k)
-		}
-	}
-	return typeLabels
+	return podNSDict
 }
 
 func filter(appInfoList []AppInfo) []AppInfo {
@@ -155,7 +153,7 @@ func filter(appInfoList []AppInfo) []AppInfo {
 	return appInfoListFilter
 }
 
-func excelOutput(appInfoList []AppInfo) {
+func excelAppInfo(appInfoList []AppInfo) {
 
 	title := map[string]string{"A1": "序号", "B1": "应用名称", "C1": "命名空间", "D1": "Pod运行节点", "E1": "应用类型"}
 	f := excelize.NewFile()

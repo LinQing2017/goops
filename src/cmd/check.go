@@ -17,7 +17,6 @@ func NewCmdCheck() *cobra.Command {
 	}
 
 	addCheckFlag(cmd.Flags())
-	cmd.AddCommand(check.NewCmdDisk())
 	cmd.AddCommand(check.NewCmdIngressTLS())
 	cmd.AddCommand(check.NewCmdAppInfo())
 	return cmd
