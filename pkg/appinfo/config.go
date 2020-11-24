@@ -14,6 +14,7 @@ var (
 	nodeFilter    string
 	isPrint       bool
 	kubeConfigStr string
+	metricFile    string
 )
 
 func AddAppInfoFlag(flags *pflag.FlagSet) {
@@ -22,6 +23,6 @@ func AddAppInfoFlag(flags *pflag.FlagSet) {
 	flags.StringVar(&mongoDB, "mongo-database", "ndp_portal", "Mongodb 数据库名称。")
 	//flags.StringVar(&mongoUrl, "mongo-url", "m3.ndp.prod.mongod3.sdp:34002,m2.ndp.prod.mongod3.sdp:34002,m1.ndp.prod.mongod3.sdp:34002", "Mongodb 地址。")
 	flags.StringVar(&mongoUrl, "mongo-url", "", "Mongodb 地址。")
-	flags.StringVar(&mongoUrl, "metrics-file", "", "流量统计execel文件。")
+	flags.StringVar(&metricFile, "metrics-file", "", "流量统计execel文件。")
 	flags.StringVar(&kubeConfigStr, "kubeconfig", filepath.Join(os.Getenv("HOME"), ".kube", "config"), "Kubernete集群的config配置文件。")
 }

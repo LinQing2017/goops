@@ -71,7 +71,7 @@ func Main(cmd *cobra.Command, args []string) {
 func getAppMetrics() map[string]string {
 
 	appMetrics := make(map[string]string)
-	if f, err := excelize.OpenFile("组件运维数据-数据.xlsx", excelize.Options{}); err != nil {
+	if f, err := excelize.OpenFile(metricFile, excelize.Options{}); err != nil {
 		logrus.Error(err.Error())
 	} else {
 		if rows, err := f.Rows("nginx"); err == nil {
