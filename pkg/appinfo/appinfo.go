@@ -3,147 +3,138 @@ package appinfo
 import (
 	"context"
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
-	mapset "github.com/deckarep/golang-set"
-	"github.com/modood/table"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"goops/pkg/appinfo/types"
+	k8stools "goops/pkg/util/kubernetes"
+	mongotools "goops/pkg/util/mongo"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/client-go/kubernetes"
-	"kube-tools/pkg/appinfo/entity"
-	k8stools "kube-tools/pkg/util/kubernetes"
-	"kube-tools/pkg/util/mongo"
-	systools "kube-tools/pkg/util/sys"
-	"sort"
 	"strconv"
 	"strings"
 )
 
 func Main(cmd *cobra.Command, args []string) {
-	clusterInfoDict := getClusterInfo()
-	kubeClient, _ := k8stools.KubeClientAndConfig(kubeConfigStr)
-	podNSDict := getPodNSDict(kubeClient)
-
-	appinfoList := make([]entity.AppInfo, 0)
-	for namespace, podsOnNS := range podNSDict {
-
-		clist := clusterInfoDict[namespace]
-		if clist == nil {
-			continue
-		}
-		appinfo := entity.AppInfo{
-			Name:    clist[0].AppName,
-			APPID:   namespace,
-			PodNode: make([]string, 0),
-			Type:    make([]string, 0),
-		}
-		for _, pod := range podsOnNS {
-			if pod.Status.Phase != v1.PodRunning {
-				continue
-			}
-			appinfo.PodNode = append(appinfo.PodNode, pod.Status.HostIP)
-			for k, v := range pod.Spec.NodeSelector {
-				if strings.EqualFold(v, "type") {
-					appinfo.Type = append(appinfo.Type, k)
-				}
-			}
-		}
-		appinfo.PodNode = systools.RemoveRepeatedElement(appinfo.PodNode)
-		sort.Strings(appinfo.PodNode)
-		appinfo.Type = systools.RemoveRepeatedElement(appinfo.Type)
-		appinfoList = append(appinfoList, appinfo)
-	}
-
-	appinfoFilter := filter(appinfoList)
-	excelAppInfo(appinfoFilter)
-	if isPrint {
-		table.Output(appinfoFilter)
-	}
-}
-
-func getClusterInfo() map[string][]entity.ClusterInfo {
-
 	// 设置客户端连接配置
 	mongoURI := "mongodb://" + mongoUser + ":" + mongoPasswd + "@" + mongoUrl + "/" + mongoDB + "?autoConnectRetry=true"
-	client := mongo.MongoClient(mongoURI)
+	ndpPortalClient := mongotools.MongoClient(mongoURI)
 
-	// 指定获取要操作的数据集
-	collection := client.Database(mongoDB).Collection("cluster")
-	records, _ := collection.Find(context.TODO(), bson.M{})
-	k8sClusters := make([]entity.ClusterInfo, 0)
-	records.All(context.TODO(), &k8sClusters)
-	dict := map[string][]entity.ClusterInfo{}
-	for _, c := range k8sClusters {
-		clusters := dict[c.AppId]
-		if clusters == nil {
-			clusters = make([]entity.ClusterInfo, 0)
-		}
-		dict[c.AppId] = append(clusters, c)
-	}
-	// 断开连接
-	mongo.MongoDisconnect(client)
+	k8sClient, _ := k8stools.KubeClientAndConfig(kubeConfigStr)
+	podDict, _ := k8stools.GetPodDict(k8sClient, "")
+	podDictByNamespace, _ := k8stools.GetPodDictByNamespace(k8sClient, "")
 
-	return dict
-}
+	// 读取流量信息
+	appMetrics := getAppMetrics()
 
-func getPodNSDict(kubeClient *kubernetes.Clientset) map[string][]v1.Pod {
-	pods, _ := k8stools.GetPodList(kubeClient, "", "")
-	podNSDict := make(map[string][]v1.Pod)
-	for _, pod := range pods.Items {
-		key := pod.Namespace
-		podListOnNS := podNSDict[key]
-		if podListOnNS == nil {
-			podListOnNS = make([]v1.Pod, 0)
-		}
-		podListOnNS = append(podListOnNS, pod)
-		podNSDict[key] = podListOnNS
-	}
-	return podNSDict
-}
+	appInfoDict := make(map[string][]types.AppInformathion, 0)
+	for nodename, pods := range podDict {
 
-func filter(appInfoList []entity.AppInfo) []entity.AppInfo {
-	if strings.EqualFold(nodeFilter, "") {
-		return appInfoList
-	}
-	nodeFilterSet := mapset.NewSet()
-	for _, v := range strings.Split(nodeFilter, ",") {
-		nodeFilterSet.Add(v)
-	}
+		appInfoList := make([]types.AppInformathion, 0)
+		for _, pod := range pods {
+			namespace := pod.Namespace
+			var app types.App
+			otherPods := podDictByNamespace[namespace]
 
-	appInfoListFilter := make([]entity.AppInfo, 0)
-	for _, appInfo := range appInfoList {
-		for _, node := range appInfo.PodNode {
-			if nodeFilterSet.Contains(node) {
-				appInfoListFilter = append(appInfoListFilter, appInfo)
-				break
+			otherHostIP := make([]string, 0)
+
+			for _, otherPod := range otherPods {
+				if !strings.EqualFold(otherPod.Name, pod.Name) {
+					otherHostIP = append(otherHostIP, otherPod.Status.HostIP)
+				}
+			}
+			if err := getAppInfo(namespace, ndpPortalClient, &app); err == nil {
+				appInfo := types.AppInformathion{
+					AppId:             namespace,
+					Name:              app.Name,
+					HostIP:            nodename,
+					OtherIP:           strings.Join(otherHostIP, "\n"),
+					NodeSelectorLabel: getNodeSelectors(pod),
+					Metric:            appMetrics[app.Name],
+					Creator:           app.CreatorName + "(" + strconv.Itoa(app.Creator) + ")",
+					URL:               "https://da.sdp.101.com/#/ndpfront/applicationManagement/applicationList/serviceInformation/" + namespace + "/" + app.Name,
+					Single:            app.SingleInstance,
+				}
+				appInfoList = append(appInfoList, appInfo)
 			}
 		}
+		appInfoDict[nodename] = appInfoList
+		//table.Output(appInfoList)
+
 	}
-	return appInfoListFilter
+	excelAppInfo(appInfoDict)
+	ndpPortalClient.Disconnect(context.TODO())
+	getAppMetrics()
 }
 
-func excelAppInfo(appInfoList []entity.AppInfo) {
+func getAppMetrics() map[string]string {
 
-	title := map[string]string{"A1": "序号", "B1": "应用名称", "C1": "命名空间", "D1": "Pod运行节点", "E1": "应用类型"}
-	f := excelize.NewFile()
-	for k, v := range title {
-		f.SetCellValue("Sheet1", k, v)
+	appMetrics := make(map[string]string)
+	if f, err := excelize.OpenFile("组件运维数据-数据.xlsx", excelize.Options{}); err != nil {
+		logrus.Error(err.Error())
+	} else {
+		if rows, err := f.Rows("nginx"); err == nil {
+			rows.Columns()
+			for rows.Next() {
+				columns, _ := rows.Columns()
+				appMetrics[columns[0]] = columns[2]
+			}
+
+		}
 	}
-	id := 1
-	for _, appinfo := range appInfoList {
+	return appMetrics
+}
 
-		rowNum := strconv.Itoa(id + 1)
-		row := map[string]string{
-			"A" + rowNum: strconv.Itoa(id),
-			"B" + rowNum: appinfo.Name,
-			"C" + rowNum: appinfo.APPID,
-			"D" + rowNum: strings.Join(appinfo.PodNode, ","),
-			"E" + rowNum: strings.Join(appinfo.Type, ","),
+func getNodeSelectors(pod v1.Pod) string {
+	for k, v := range pod.Spec.NodeSelector {
+		if strings.EqualFold(v, "type") {
+			return k
 		}
-		for k, v := range row {
-			f.SetCellValue("Sheet1", k, v)
+	}
+	return ""
+}
+
+func getAppInfo(appId string, client *mongo.Client, app interface{}) error {
+	// 指定获取要操作的数据集
+	collection := client.Database(mongoDB).Collection("app")
+	objectId, _ := primitive.ObjectIDFromHex(appId)
+	appInfo := collection.FindOne(context.TODO(), bson.M{"_id": objectId})
+	if err := appInfo.Decode(app); err != nil {
+		logrus.Warn(err.Error(), " : ", appId)
+		return err
+	}
+	return nil
+}
+
+func excelAppInfo(appInfoDict map[string][]types.AppInformathion) {
+
+	sheetTitle := map[string]string{"A1": "应用名称", "B1": "运行节点", "C1": "其他实例运行节点", "D1": "标签", "E1": "创建人", "F1": "单实例", "G1": "访问量", "I1": "链接"}
+	f := excelize.NewFile()
+	for nodename, appInfoList := range appInfoDict {
+		f.NewSheet(nodename)
+		for k, v := range sheetTitle {
+			f.SetCellValue(nodename, k, v)
 		}
-		id += 1
+		id := 1
+		for _, appinfo := range appInfoList {
+			rowNum := strconv.Itoa(id + 1)
+			row := map[string]string{
+				"A" + rowNum: appinfo.Name,
+				"B" + rowNum: appinfo.HostIP,
+				"C" + rowNum: appinfo.OtherIP,
+				"D" + rowNum: appinfo.NodeSelectorLabel,
+				"E" + rowNum: appinfo.Creator,
+				"F" + rowNum: strconv.FormatBool(appinfo.Single),
+				"G" + rowNum: appinfo.Metric,
+				"I" + rowNum: "链接",
+			}
+			for k, v := range row {
+				f.SetCellValue(nodename, k, v)
+			}
+			f.SetCellHyperLink(nodename, "I"+rowNum, appinfo.URL, "External")
+			id += 1
+		}
 	}
 	if err := f.SaveAs("output" + ".xlsx"); err != nil {
 		logrus.Errorf(err.Error())

@@ -3,7 +3,7 @@ package docker
 import (
 	"context"
 	"github.com/docker/docker/client"
-	systools "kube-tools/pkg/util/sys"
+	systools "goops/pkg/util/sys"
 	"path"
 	"strings"
 )

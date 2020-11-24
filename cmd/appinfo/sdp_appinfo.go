@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-	"kube-tools/pkg/appinfo"
-	sdpLogger "kube-tools/pkg/logger"
+	"goops/pkg/appinfo"
+	sdpLogger "goops/pkg/logger"
 	"os"
 )
 

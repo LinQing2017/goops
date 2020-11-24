@@ -6,7 +6,7 @@ import (
 	"github.com/modood/table"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"kube-tools/pkg/util/sys"
+	"goops/pkg/util/sys"
 	"net/http"
 	"net/url"
 	"strconv"

@@ -9,25 +9,34 @@ import (
 )
 
 // 根据Node返回当前Pod运行字典
-func GetPodDict(kubeClientSet *kubernetes.Clientset, lableSelector string) (podDist map[string][]v1.Pod, err error) {
-	listOptions := metav1.ListOptions{}
-	if !strings.EqualFold(lableSelector, "") {
-		listOptions = metav1.ListOptions{
-			TypeMeta:      metav1.TypeMeta{},
-			LabelSelector: lableSelector,
-		}
-	}
-
-	pods, err := kubeClientSet.CoreV1().Pods("").List(listOptions)
-	podDist = make(map[string][]v1.Pod)
+func GetPodDict(kubeClientSet *kubernetes.Clientset, lableSelector string) (podDict map[string][]v1.Pod, err error) {
+	pods, err := GetPodList(kubeClientSet, "", lableSelector)
+	podDict = make(map[string][]v1.Pod)
 	for _, pod := range pods.Items {
 		key := pod.Spec.NodeName
-		podListOnNode := podDist[key]
+		podListOnNode := podDict[key]
 		if podListOnNode == nil {
 			podListOnNode = make([]v1.Pod, 0)
 		}
 		podListOnNode = append(podListOnNode, pod)
-		podDist[key] = podListOnNode
+		podDict[key] = podListOnNode
+	}
+	return
+}
+
+// 根据Node返回当前Pod运行字典
+func GetPodDictByNamespace(kubeClientSet *kubernetes.Clientset, lableSelector string) (podDict map[string][]v1.Pod, err error) {
+
+	pods, err := GetPodList(kubeClientSet, "", lableSelector)
+	podDict = make(map[string][]v1.Pod)
+	for _, pod := range pods.Items {
+		key := pod.Namespace
+		podListOnNode := podDict[key]
+		if podListOnNode == nil {
+			podListOnNode = make([]v1.Pod, 0)
+		}
+		podListOnNode = append(podListOnNode, pod)
+		podDict[key] = podListOnNode
 	}
 	return
 }

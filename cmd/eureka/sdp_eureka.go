@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-	"kube-tools/pkg/eureka"
-	sdpLogger "kube-tools/pkg/logger"
+	"goops/pkg/eureka"
+	sdpLogger "goops/pkg/logger"
 	"os"
 )
 
