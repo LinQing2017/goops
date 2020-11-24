@@ -34,23 +34,28 @@ func Main(cmd *cobra.Command, args []string) {
 		appInfoList := make([]types.AppInformathion, 0)
 		for _, pod := range pods {
 			namespace := pod.Namespace
-			var app types.App
+			// 过滤掉转码任务
+			nodeSelector := getNodeSelectors(pod)
+			if strings.EqualFold(nodeSelector, "cpu") {
+				continue
+			}
+			// 检查其他Pod运行节点
 			otherPods := podDictByNamespace[namespace]
-
 			otherHostIP := make([]string, 0)
-
 			for _, otherPod := range otherPods {
 				if !strings.EqualFold(otherPod.Name, pod.Name) {
 					otherHostIP = append(otherHostIP, otherPod.Status.HostIP)
 				}
 			}
+			// 获取APP信息
+			var app types.App
 			if err := getAppInfo(namespace, ndpPortalClient, &app); err == nil {
 				appInfo := types.AppInformathion{
 					AppId:             namespace,
 					Name:              app.Name,
 					HostIP:            nodename,
 					OtherIP:           strings.Join(otherHostIP, "\n"),
-					NodeSelectorLabel: getNodeSelectors(pod),
+					NodeSelectorLabel: nodeSelector,
 					Metric:            appMetrics[app.Name],
 					Creator:           app.CreatorName + "(" + strconv.Itoa(app.Creator) + ")",
 					URL:               "https://da.sdp.101.com/#/ndpfront/applicationManagement/applicationList/serviceInformation/" + namespace + "/" + app.Name,
@@ -109,7 +114,7 @@ func getAppInfo(appId string, client *mongo.Client, app interface{}) error {
 
 func excelAppInfo(appInfoDict map[string][]types.AppInformathion) {
 
-	sheetTitle := map[string]string{"A1": "应用名称", "B1": "运行节点", "C1": "其他实例运行节点", "D1": "标签", "E1": "创建人", "F1": "单实例", "G1": "访问量", "I1": "链接"}
+	sheetTitle := map[string]string{"A1": "应用名称", "B1": "运行节点", "C1": "其他实例运行节点", "D1": "标签", "E1": "创建人", "F1": "单实例", "G1": "访问量", "H1": "链接"}
 	f := excelize.NewFile()
 	for nodename, appInfoList := range appInfoDict {
 		f.NewSheet(nodename)
@@ -127,12 +132,12 @@ func excelAppInfo(appInfoDict map[string][]types.AppInformathion) {
 				"E" + rowNum: appinfo.Creator,
 				"F" + rowNum: strconv.FormatBool(appinfo.Single),
 				"G" + rowNum: appinfo.Metric,
-				"I" + rowNum: "链接",
+				"H" + rowNum: "链接",
 			}
 			for k, v := range row {
 				f.SetCellValue(nodename, k, v)
 			}
-			f.SetCellHyperLink(nodename, "I"+rowNum, appinfo.URL, "External")
+			f.SetCellHyperLink(nodename, "H"+rowNum, appinfo.URL, "External")
 			id += 1
 		}
 	}
