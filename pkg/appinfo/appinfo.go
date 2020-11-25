@@ -64,9 +64,10 @@ func Main(cmd *cobra.Command, args []string) {
 				appInfoList = append(appInfoList, appInfo)
 			}
 		}
-		appInfoDict[nodename] = appInfoList
+		if len(appInfoList) > 0 {
+			appInfoDict[nodename] = appInfoList
+		}
 		//table.Output(appInfoList)
-
 	}
 	excelAppInfo(appInfoDict)
 	ndpPortalClient.Disconnect(context.TODO())
