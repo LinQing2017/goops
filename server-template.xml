@@ -1,0 +1,59 @@
+<Server port="7513" shutdown="SHUTDOWN">
+    <Listener SSLEngine="on" className="org.apache.catalina.core.AprLifecycleListener"/>
+    <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener"/>
+    <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener"/>
+    <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener"/>
+    <GlobalNamingResources>
+        <Resource auth="Container" description="User database that can be updated and saved"
+                  factory="org.apache.catalina.users.MemoryUserDatabaseFactory" name="UserDatabase"
+                  pathname="conf/tomcat-users.xml" type="org.apache.catalina.UserDatabase"/>
+    </GlobalNamingResources>
+    <Service name="Catalina">
+        <Connector connectionTimeout="60000"
+                   maxHttpHeaderSize="8192"
+                   disableUploadTimeout="true"
+                   maxThreads="1000"
+                   minSpareThreads="100"
+                   acceptCount="1000"
+                   enableLookups="false"
+                   port="8080"
+                   protocol="org.apache.coyote.http11.Http11NioProtocol"
+                   redirectPort="8440"
+                   URIEncoding="UTF-8"/>
+
+        <Engine defaultHost="localhost" name="Catalina">
+            <Realm className="org.apache.catalina.realm.LockOutRealm">
+                <Realm className="org.apache.catalina.realm.UserDatabaseRealm" resourceName="UserDatabase"/>
+            </Realm>
+            <Host appBase="webapps_base/default" autoDeploy="true" name="localhost" unpackWARs="true">
+                <Context crossContext="true" docBase="ROOT" path=""/>
+                <Context crossContext="true" docBase="sdp_tomcat_monitor" path="/sdp_tomcat_monitor"
+                         privileged="true"></Context>
+                <Valve className="org.apache.catalina.valves.RemoteIpValve" remoteIpHeader="X-Forwarded-For"
+                       protocolHeader="X-Forwarded-Proto"/>
+                <Valve className="org.apache.catalina.valves.AccessLogValve"
+                       directory="${catalina.base}/logs/accesslog/"
+                       pattern="%a | %u | %{yyyy-MM-dd'T'HH:mm:ss.SSSZ}t | %H | %m | %v | %U%q | %s | %{Referer}i | %{X-Forwarded-For}i | %{X-Forwarded-Proto}i | %A:%p | %T | %{User-Agent}i | %B | %{Fiddlerhost}i | %{Xonlinehost}i | %{Pinpoint-Traceid}o | %{Pinpoint-Spanid}i | %{Sdp-App-Id}i | %{Sdp-Tenant-Id}i | %{X-Gaea-Authorization}i | %{Org}i | %{Authorization}i | %{X-Sdp-Fp}i | %{Content-Length}i | %{X-Sg-Route-Info}i"
+                       prefix="tomcat_access" suffix=".log"/>
+            </Host>
+            <Host appBase="webapps_base/demo1" autoDeploy="true" name="demo1.dev.ndaeweb.com" unpackWARs="true">
+                <Context crossContext="true" docBase="ROOT" path=""/>
+                <Valve className="org.apache.catalina.valves.RemoteIpValve" remoteIpHeader="X-Forwarded-For"
+                       protocolHeader="X-Forwarded-Proto"/>
+                <Valve className="org.apache.catalina.valves.AccessLogValve"
+                       directory="${catalina.base}/logs/accesslog/"
+                       pattern="%a | %u | %{yyyy-MM-dd'T'HH:mm:ss.SSSZ}t | %H | %m | %v | %U%q | %s | %{Referer}i | %{X-Forwarded-For}i | %{X-Forwarded-Proto}i | %A:%p | %T | %{User-Agent}i | %B | %{Fiddlerhost}i | %{Xonlinehost}i | %{Pinpoint-Traceid}o | %{Pinpoint-Spanid}i | %{Sdp-App-Id}i | %{Sdp-Tenant-Id}i | %{X-Gaea-Authorization}i | %{Org}i | %{Authorization}i | %{X-Sdp-Fp}i | %{Content-Length}i | %{X-Sg-Route-Info}i"
+                       prefix="tomcat_access" suffix=".log"/>
+            </Host>
+            <Host appBase="webapps_base/demo2" autoDeploy="true" name="demo2.dev.ndaeweb.com" unpackWARs="true">
+                <Context crossContext="true" docBase="ROOT" path=""/>
+                <Valve className="org.apache.catalina.valves.RemoteIpValve" remoteIpHeader="X-Forwarded-For"
+                       protocolHeader="X-Forwarded-Proto"/>
+                <Valve className="org.apache.catalina.valves.AccessLogValve"
+                       directory="${catalina.base}/logs/accesslog/"
+                       pattern="%a | %u | %{yyyy-MM-dd'T'HH:mm:ss.SSSZ}t | %H | %m | %v | %U%q | %s | %{Referer}i | %{X-Forwarded-For}i | %{X-Forwarded-Proto}i | %A:%p | %T | %{User-Agent}i | %B | %{Fiddlerhost}i | %{Xonlinehost}i | %{Pinpoint-Traceid}o | %{Pinpoint-Spanid}i | %{Sdp-App-Id}i | %{Sdp-Tenant-Id}i | %{X-Gaea-Authorization}i | %{Org}i | %{Authorization}i | %{X-Sdp-Fp}i | %{Content-Length}i | %{X-Sg-Route-Info}i"
+                       prefix="tomcat_access" suffix=".log"/>
+            </Host>
+        </Engine>
+    </Service>
+</Server>
