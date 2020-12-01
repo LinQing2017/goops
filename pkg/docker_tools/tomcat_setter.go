@@ -1,4 +1,4 @@
-package jvm_setter
+package docker_tools
 
 import (
 	"encoding/json"
