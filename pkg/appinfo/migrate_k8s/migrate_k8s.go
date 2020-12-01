@@ -1,4 +1,4 @@
-package appinfo
+package migrate_k8s
 
 import (
 	"context"
@@ -145,4 +145,17 @@ func excelAppInfo(appInfoDict map[string][]types.AppInformathion) {
 	if err := f.SaveAs("output" + ".xlsx"); err != nil {
 		logrus.Errorf(err.Error())
 	}
+}
+
+func NewCmdMigrateK8s() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:                   "migrate-k8s",
+		Short:                 "Kubernetes集群迁移Kubernetes集群时相关信息导出",
+		DisableFlagsInUseLine: true,
+		Run: func(cmd *cobra.Command, args []string) {
+			Main(cmd, args)
+		},
+	}
+	AddMigrateFlag(cmd.Flags())
+	return cmd
 }

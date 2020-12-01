@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/spf13/cobra"
-	"goops/pkg/appinfo"
+	"goops/pkg/appinfo/migrate_k8s"
 	sdpLogger "goops/pkg/logger"
 	"os"
 )
@@ -17,13 +17,14 @@ func main() {
 
 func NewCmdAppInfo() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "sdpappinfo",
-		Short:                 "获取集群应用信息。",
-		DisableFlagsInUseLine: true,
-		Run: func(cmd *cobra.Command, args []string) {
-			appinfo.Main(cmd, args)
-		},
+		Use:                   "sdp-app-cli",
+		DisableFlagsInUseLine: false,
+		Run:                   runHelp,
 	}
-	appinfo.AddAppInfoFlag(cmd.Flags())
+	cmd.AddCommand(migrate_k8s.NewCmdMigrateK8s())
 	return cmd
+}
+
+func runHelp(cmd *cobra.Command, args []string) {
+	cmd.Help()
 }

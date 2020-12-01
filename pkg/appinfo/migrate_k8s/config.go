@@ -1,4 +1,4 @@
-package appinfo
+package migrate_k8s
 
 import (
 	"github.com/spf13/pflag"
@@ -17,7 +17,7 @@ var (
 	metricFile    string
 )
 
-func AddAppInfoFlag(flags *pflag.FlagSet) {
+func AddMigrateFlag(flags *pflag.FlagSet) {
 	flags.StringVar(&mongoUser, "mongo-user", "", "Mongodb 用户名。")
 	flags.StringVar(&mongoPasswd, "mongo-password", "", "Mongodb 密码。")
 	flags.StringVar(&mongoDB, "mongo-database", "ndp_portal", "Mongodb 数据库名称。")
