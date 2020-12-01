@@ -6,7 +6,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os"
-	"path"
 	"strings"
 )
 
@@ -85,14 +84,14 @@ func modifyHostEntity(sdpConfig *SDP_CONFIG, server *etree.Document) {
 func modifyServerXml(sdpConfig *SDP_CONFIG) {
 
 	server := etree.NewDocument()
-	if err := server.ReadFromFile(path.Join(catalinaBase, templateFile)); err != nil {
+	if err := server.ReadFromFile(templateFile); err != nil {
 		logrus.Error("读取配置文件模板失败：", err)
 		os.Exit(-1)
 	}
 	modifyConnectorEntity(sdpConfig, server)
 	modifyHostEntity(sdpConfig, server)
 	server.WriteSettings.CanonicalAttrVal = true
-	if err := server.WriteToFile(path.Join(catalinaBase, outputFile)); err != nil {
+	if err := server.WriteToFile(outputFile); err != nil {
 		logrus.Error("保存配置文件失败：", err)
 		os.Exit(-1)
 	}
