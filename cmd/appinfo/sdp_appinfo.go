@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/spf13/cobra"
+	"goops/pkg/appinfo/get"
 	"goops/pkg/appinfo/migrate_k8s"
 	sdpLogger "goops/pkg/logger"
 	"os"
@@ -22,6 +23,7 @@ func NewCmdAppInfo() *cobra.Command {
 		Run:                   runHelp,
 	}
 	cmd.AddCommand(migrate_k8s.NewCmdMigrateK8s())
+	cmd.AddCommand(get.NewCmdGet())
 	return cmd
 }
 

@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cobra"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"goops/pkg/appinfo/types"
+	"goops/pkg/appinfo/db_tools"
+	"goops/pkg/appinfo/db_tools/types"
 	k8stools "goops/pkg/util/kubernetes"
 	mongotools "goops/pkg/util/mongo"
 	v1 "k8s.io/api/core/v1"
@@ -28,10 +28,10 @@ func Main(cmd *cobra.Command, args []string) {
 	// 读取流量信息
 	appMetrics := getAppMetrics()
 
-	appInfoDict := make(map[string][]types.AppInformathion, 0)
+	appInfoDict := make(map[string][]AppInformathion, 0)
 	for nodename, pods := range podDict {
 
-		appInfoList := make([]types.AppInformathion, 0)
+		appInfoList := make([]AppInformathion, 0)
 		for _, pod := range pods {
 			namespace := pod.Namespace
 			// 过滤掉转码任务
@@ -49,8 +49,9 @@ func Main(cmd *cobra.Command, args []string) {
 			}
 			// 获取APP信息
 			var app types.App
-			if err := getAppInfo(namespace, ndpPortalClient, &app); err == nil {
-				appInfo := types.AppInformathion{
+			objectId, _ := primitive.ObjectIDFromHex(namespace)
+			if err := db_tools.GetOne(mongoDB, "app", bson.M{"_id": objectId}, ndpPortalClient, &app); err == nil {
+				appInfo := AppInformathion{
 					AppId:             namespace,
 					Name:              app.Name,
 					HostIP:            nodename,
@@ -101,19 +102,7 @@ func getNodeSelectors(pod v1.Pod) string {
 	return ""
 }
 
-func getAppInfo(appId string, client *mongo.Client, app interface{}) error {
-	// 指定获取要操作的数据集
-	collection := client.Database(mongoDB).Collection("app")
-	objectId, _ := primitive.ObjectIDFromHex(appId)
-	appInfo := collection.FindOne(context.TODO(), bson.M{"_id": objectId})
-	if err := appInfo.Decode(app); err != nil {
-		logrus.Warn(err.Error(), " : ", appId)
-		return err
-	}
-	return nil
-}
-
-func excelAppInfo(appInfoDict map[string][]types.AppInformathion) {
+func excelAppInfo(appInfoDict map[string][]AppInformathion) {
 
 	sheetTitle := map[string]string{"A1": "应用名称", "B1": "运行节点", "C1": "其他实例运行节点", "D1": "标签", "E1": "创建人", "F1": "单实例", "G1": "访问量", "H1": "链接"}
 	f := excelize.NewFile()
