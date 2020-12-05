@@ -56,6 +56,7 @@ func getListAppInfo(portalInfo types.AppPortalInfo) ListAppInfo {
 		EWSPackage: false,
 		K8SNum:     len(portalInfo.K8SServiceList),
 		EWSNum:     len(portalInfo.EWSServiceList),
+		URL:        "https://da.sdp.101.com/#/ndpfront/applicationManagement/applicationList/serviceInformation/" + portalInfo.APP.ID.Hex() + "/" + portalInfo.APP.Name,
 	}
 
 	packageNum := 0 // 能够找到包路径的弹性web集群数目
