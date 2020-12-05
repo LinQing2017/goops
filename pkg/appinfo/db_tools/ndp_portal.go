@@ -40,16 +40,16 @@ func GetPortalInfo(appname, mongoDB string, client *mongo.Client) types.AppPorta
 	}
 	appPortalInfo.APP = app
 
-	////获取Environment表记录
-	//var environments []*types.Environment
-	//if err := GetBatch(mongoDB, "environment", bson.M{"appId": app.ID.Hex()}, client, &environments); err != nil {
-	//	logrus.Error("没有查询到environment信息")
-	//}
-	//appPortalInfo.Environments = environments
+	//获取Environment表记录
+	var environments []*types.Environment
+	if err := GetBatch(mongoDB, "environment", bson.M{"appId": app.ID.Hex()}, client, &environments); err != nil {
+		logrus.Error("没有查询到environment信息")
+	}
+	appPortalInfo.Environments = environments
 
 	// 获取Service信息
 	var ewsServiceList []*types.Service
-	if err := GetBatch(mongoDB, "service", bson.M{"appId": app.ID.Hex(), "name": app.Name, "type": 1}, client, &ewsServiceList); err != nil {
+	if err := GetBatch(mongoDB, "service", bson.M{"name": app.Name, "type": 1}, client, &ewsServiceList); err != nil {
 		logrus.Info("没有查询到弹性web集群")
 	}
 	appPortalInfo.EWSServiceList = ewsServiceList

@@ -46,10 +46,3 @@ type Service struct {
 	Env        int                `bson:"env"`
 	AppId      string             `bson:"appId`
 }
-
-type AppPortalInfo struct {
-	APP            App
-	Environments   []*Environment
-	EWSServiceList []*Service
-	K8SServiceList []*Service
-}

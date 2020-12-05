@@ -2,7 +2,9 @@ package main
 
 import (
 	"github.com/spf13/cobra"
+	"goops/pkg/appinfo/db_tools"
 	"goops/pkg/appinfo/get"
+	"goops/pkg/appinfo/list"
 	"goops/pkg/appinfo/migrate_k8s"
 	sdpLogger "goops/pkg/logger"
 	"os"
@@ -22,8 +24,10 @@ func NewCmdAppInfo() *cobra.Command {
 		DisableFlagsInUseLine: false,
 		Run:                   runHelp,
 	}
+	db_tools.AddDBFlag(cmd.Flags())
 	cmd.AddCommand(migrate_k8s.NewCmdMigrateK8s())
 	cmd.AddCommand(get.NewCmdGet())
+	cmd.AddCommand(list.NewListGet())
 	return cmd
 }
 

@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sdp-centos7
+  namespace: sdp-devops
+spec:
+  selector:
+    matchLabels:
+      name: sdp-centos7
+  template:
+    metadata:
+      labels:
+        name: sdp-centos7
+    spec:
+      containers:
+        - name: sdp-centos7
+          image: wxext-registry.101.com/sdp/centos:centos7
+          command: ["sleep"]
+          args:  [ "inf"]
+          ports:
+            - containerPort: 8080
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: PORTAL_MONGODB_USER
+              value: ndp_portal
+            - name: PORTAL_MONGODB_PASSWORD
+              value: okvlZuvSwsnZ
+            - name: PORTAL_MONGODB_DATABASE
+              value: ndp_portal
+            - name: PORTAL_MONGODB_URL
+              value: "m1.ndp.prod.mongod3.sdp:34002,m2.ndp.prod.mongod3.sdp:34002,m3.ndp.prod.mongod3.sdp:34002"
