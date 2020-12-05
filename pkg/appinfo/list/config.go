@@ -7,7 +7,6 @@ import (
 var (
 	nameFromFile string
 	envType      int
-	envTypeList  map[int]string
 )
 
 func AddListFlag(flags *pflag.FlagSet) {

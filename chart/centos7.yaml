@@ -29,3 +29,7 @@ spec:
               value: ndp_portal
             - name: PORTAL_MONGODB_URL
               value: "m1.ndp.prod.mongod3.sdp:34002,m2.ndp.prod.mongod3.sdp:34002,m3.ndp.prod.mongod3.sdp:34002"
+            - name: EWS_URL
+              value: "ews.sdp.101.com"
+            - name: EWS_TOKEN
+              value: "7F938B205F876FC3600A1F9436A36578721C3C5D07BE875E933BFBB70FFF8F8EB9DD299F33866BA066CD954F49A74911"

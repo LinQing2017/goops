@@ -24,7 +24,7 @@ func NewCmdGet() *cobra.Command {
 func Main(cmd *cobra.Command, args []string) {
 	portalDBURI := "mongodb://" + db_tools.PortalMongoUser + ":" + db_tools.PortalMongoPasswd + "@" + db_tools.PortalMongoUrl + "/" + db_tools.PortalMongoDB + "?autoConnectRetry=true"
 	ndpPortalClient := mongotools.MongoClient(portalDBURI)
-	portalAppInfo := db_tools.GetPortalInfo(args[0], db_tools.PortalMongoDB, ndpPortalClient)
+	portalAppInfo := db_tools.GetPortalInfo(args[0], envType, ndpPortalClient)
 	PrintApplicationInfo(portalAppInfo)
 	mongotools.MongoDisconnect(ndpPortalClient)
 

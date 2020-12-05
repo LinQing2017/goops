@@ -30,35 +30,50 @@ func GetBatch(mongoDB, collectionName string, filter interface{}, client *mongo.
 	return nil
 }
 
-func GetPortalInfo(appname, mongoDB string, client *mongo.Client) types.AppPortalInfo {
+func GetPortalInfo(appname string, envType int, client *mongo.Client) types.AppPortalInfo {
 	appPortalInfo := types.AppPortalInfo{}
 
 	// 获取APP表数据
 	var app types.App
-	if err := GetOne(mongoDB, "app", bson.M{"name": appname}, client, &app); err != nil {
+	if err := GetOne(PortalMongoDB, "app", bson.M{"name": appname}, client, &app); err != nil {
 		logrus.Error("没有查询到App信息")
 	}
 	appPortalInfo.APP = app
 
 	//获取Environment表记录
 	var environments []*types.Environment
-	if err := GetBatch(mongoDB, "environment", bson.M{"appId": app.ID.Hex()}, client, &environments); err != nil {
+	var filter interface{}
+	if envType == 0 {
+		filter = bson.M{"appId": app.ID.Hex()}
+	} else {
+		filter = bson.M{"appId": app.ID.Hex(), "envType": envType}
+	}
+	if err := GetBatch(PortalMongoDB, "environment", filter, client, &environments); err != nil {
 		logrus.Error("没有查询到environment信息")
 	}
 	appPortalInfo.Environments = environments
 
 	// 获取Service信息
 	var ewsServiceList []*types.Service
-	if err := GetBatch(mongoDB, "service", bson.M{"name": app.Name, "type": 1}, client, &ewsServiceList); err != nil {
+	if envType == 0 {
+		filter = bson.M{"name": app.Name, "type": 1}
+	} else {
+		filter = bson.M{"name": app.Name, "type": 1, "env": envType}
+	}
+	if err := GetBatch(PortalMongoDB, "service", filter, client, &ewsServiceList); err != nil {
 		logrus.Info("没有查询到弹性web集群")
 	}
 	appPortalInfo.EWSServiceList = ewsServiceList
 
 	var k8sServiceList []*types.Service
-	if err := GetBatch(mongoDB, "service", bson.M{"name": app.Name, "type": 29}, client, &k8sServiceList); err != nil {
+	if envType == 0 {
+		filter = bson.M{"name": app.Name, "type": 29}
+	} else {
+		filter = bson.M{"name": app.Name, "type": 29, "env": envType}
+	}
+	if err := GetBatch(PortalMongoDB, "service", filter, client, &k8sServiceList); err != nil {
 		logrus.Info("没有查询到K8s集群")
 	}
 	appPortalInfo.K8SServiceList = k8sServiceList
-
 	return appPortalInfo
 }

@@ -27,7 +27,7 @@ func NewCmdAppInfo() *cobra.Command {
 	db_tools.AddDBFlag(cmd.Flags())
 	cmd.AddCommand(migrate_k8s.NewCmdMigrateK8s())
 	cmd.AddCommand(get.NewCmdGet())
-	cmd.AddCommand(list.NewListGet())
+	cmd.AddCommand(list.NewListCmd())
 	return cmd
 }
 
