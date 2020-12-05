@@ -15,9 +15,18 @@ type SDP_CONFIG struct {
 	SdpServerXmlArgs   string `json:"sdp_server_xml_args"`
 	SdpServerAccessLog string `json:"sdp_server_access_log"`
 	ServerArgsDict     map[string]string
+	HostDomainConfig   []HostDomains
+}
+
+type HostDomains struct {
+	APPNAME string
+	APPID   string
+	Domains []string
 }
 
 func initFromEnv(sdpConfig *SDP_CONFIG) {
+
+	// 从环境变量读取JVM配置
 	sdpConfig.SdpJavaOpts = os.Getenv("SDP_JAVA_OPTS")
 	sdpConfig.SdpJavaOptsOthers = os.Getenv("SDP_JAVA_OPTS_OTHERS")
 	sdpConfig.SdpServerXmlArgs = os.Getenv("SDP_SERVER_XML_ARGS")
@@ -41,6 +50,38 @@ func initFromEnv(sdpConfig *SDP_CONFIG) {
 			continue
 		}
 		sdpConfig.ServerArgsDict[strings.TrimSpace(t[0])] = strings.TrimSpace(t[1])
+	}
+
+	// 从环境变量读取主机名配置
+	sdpConfig.HostDomainConfig = make([]HostDomains, 0)
+	for _, envStr := range os.Environ() {
+		if strings.HasPrefix(envStr, "SDP_MERGE_APP_NAME_") {
+			t := strings.Split(envStr, "=")
+			key := t[0]
+			seqNum := strings.Replace(key, "SDP_MERGE_APP_NAME_", "", -1)
+			appName := t[1]
+			appId := os.Getenv("SDP_MERGE_APP_ID_" + seqNum)
+			appDomains := os.Getenv("SDP_MERGE_APP_DOMAINS_" + seqNum)
+			if strings.EqualFold(appId, "") || strings.EqualFold(appDomains, "") {
+				logrus.Error("Tomcat 虚拟机域名配置异常：", os.Environ())
+				os.Exit(-1)
+			}
+			h := HostDomains{
+				APPNAME: appName,
+				APPID:   appId,
+				Domains: strings.Split(appDomains, ","),
+			}
+			if len(h.Domains) < 1 {
+				logrus.Error("应用没有指定域名：", appName)
+				os.Exit(-1)
+			}
+
+			sdpConfig.HostDomainConfig = append(sdpConfig.HostDomainConfig, h)
+		}
+	}
+	if len(sdpConfig.HostDomainConfig) < 1 {
+		logrus.Error("Host域名信息配置异常配置异常")
+		os.Exit(-1)
 	}
 
 }
@@ -81,6 +122,33 @@ func modifyHostEntity(sdpConfig *SDP_CONFIG, server *etree.Document) {
 	}
 }
 
+func generateHostEntity(sdpConfig *SDP_CONFIG, server *etree.Document) {
+
+	hosts := server.SelectElement("Server").SelectElement("Service").SelectElement("Engine").SelectElements("Host")
+	engine := server.SelectElement("Server").SelectElement("Service").SelectElement("Engine")
+	if len(hosts) == 0 {
+		logrus.Error("没有找到Host配置模板")
+		os.Exit(-1)
+	}
+	defaultHost := hosts[0]
+	for _, hostConfig := range sdpConfig.HostDomainConfig {
+		newHost := defaultHost.Copy()
+		appBase := newHost.SelectAttr("appBase")
+		appBase.Value = "webapps_base/" + hostConfig.APPNAME
+		hostname := newHost.SelectAttr("name")
+		hostname.Value = hostConfig.Domains[0]
+		if len(hostConfig.Domains) > 1 {
+			for _, aliasHostName := range hostConfig.Domains[1:] {
+				newHost.CreateElement("Alias").SetText(aliasHostName)
+			}
+		}
+		engine.AddChild(newHost)
+	}
+	// 配置默认虚拟机
+	engine.RemoveChild(defaultHost)
+	engine.SelectAttr("defaultHost").Value = sdpConfig.HostDomainConfig[0].Domains[0]
+}
+
 func modifyServerXml(sdpConfig *SDP_CONFIG) {
 
 	server := etree.NewDocument()
@@ -88,6 +156,7 @@ func modifyServerXml(sdpConfig *SDP_CONFIG) {
 		logrus.Error("读取配置文件模板失败：", err)
 		os.Exit(-1)
 	}
+	generateHostEntity(sdpConfig, server)
 	modifyConnectorEntity(sdpConfig, server)
 	modifyHostEntity(sdpConfig, server)
 	server.WriteSettings.CanonicalAttrVal = true

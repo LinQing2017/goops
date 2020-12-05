@@ -27,26 +27,6 @@
             </Realm>
             <Host appBase="webapps_base/default" autoDeploy="true" name="localhost" unpackWARs="true">
                 <Context crossContext="true" docBase="ROOT" path=""/>
-                <Context crossContext="true" docBase="sdp_tomcat_monitor" path="/sdp_tomcat_monitor"
-                         privileged="true"></Context>
-                <Valve className="org.apache.catalina.valves.RemoteIpValve" remoteIpHeader="X-Forwarded-For"
-                       protocolHeader="X-Forwarded-Proto"/>
-                <Valve className="org.apache.catalina.valves.AccessLogValve"
-                       directory="${catalina.base}/logs/accesslog/"
-                       pattern="%a | %u | %{yyyy-MM-dd'T'HH:mm:ss.SSSZ}t | %H | %m | %v | %U%q | %s | %{Referer}i | %{X-Forwarded-For}i | %{X-Forwarded-Proto}i | %A:%p | %T | %{User-Agent}i | %B | %{Fiddlerhost}i | %{Xonlinehost}i | %{Pinpoint-Traceid}o | %{Pinpoint-Spanid}i | %{Sdp-App-Id}i | %{Sdp-Tenant-Id}i | %{X-Gaea-Authorization}i | %{Org}i | %{Authorization}i | %{X-Sdp-Fp}i | %{Content-Length}i | %{X-Sg-Route-Info}i"
-                       prefix="tomcat_access" suffix=".log"/>
-            </Host>
-            <Host appBase="webapps_base/demo1" autoDeploy="true" name="demo1.dev.ndaeweb.com" unpackWARs="true">
-                <Context crossContext="true" docBase="ROOT" path=""/>
-                <Valve className="org.apache.catalina.valves.RemoteIpValve" remoteIpHeader="X-Forwarded-For"
-                       protocolHeader="X-Forwarded-Proto"/>
-                <Valve className="org.apache.catalina.valves.AccessLogValve"
-                       directory="${catalina.base}/logs/accesslog/"
-                       pattern="%a | %u | %{yyyy-MM-dd'T'HH:mm:ss.SSSZ}t | %H | %m | %v | %U%q | %s | %{Referer}i | %{X-Forwarded-For}i | %{X-Forwarded-Proto}i | %A:%p | %T | %{User-Agent}i | %B | %{Fiddlerhost}i | %{Xonlinehost}i | %{Pinpoint-Traceid}o | %{Pinpoint-Spanid}i | %{Sdp-App-Id}i | %{Sdp-Tenant-Id}i | %{X-Gaea-Authorization}i | %{Org}i | %{Authorization}i | %{X-Sdp-Fp}i | %{Content-Length}i | %{X-Sg-Route-Info}i"
-                       prefix="tomcat_access" suffix=".log"/>
-            </Host>
-            <Host appBase="webapps_base/demo2" autoDeploy="true" name="demo2.dev.ndaeweb.com" unpackWARs="true">
-                <Context crossContext="true" docBase="ROOT" path=""/>
                 <Valve className="org.apache.catalina.valves.RemoteIpValve" remoteIpHeader="X-Forwarded-For"
                        protocolHeader="X-Forwarded-Proto"/>
                 <Valve className="org.apache.catalina.valves.AccessLogValve"
