@@ -28,7 +28,15 @@ spec:
             - name: PORTAL_MONGODB_DATABASE
               value: ndp_portal
             - name: PORTAL_MONGODB_URL
-              value: "m1.ndp.prod.mongod3.sdp:34002,m2.ndp.prod.mongod3.sdp:34002,m3.ndp.prod.mongod3.sdp:34002"
+              value: "m1.ndp.prod.mongod3.sdp:34002"
+            - name: K8S_MONGODB_USER
+              value: k8s_paas_release_master_api
+            - name: K8S_MONGODB_PASSWORD
+              value: d9bArQm31oG8
+            - name: K8S_MONGODB_DATABASE
+              value: k8s_paas_release_master_api
+            - name: K8S_MONGODB_URL
+              value: "m1.ndp.prod.mongod3.sdp:34002"
             - name: EWS_URL
               value: "ews.sdp.101.com"
             - name: EWS_TOKEN
