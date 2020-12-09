@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: sdp-centos7
-          image: wxext-registry.101.com/sdp/centos:centos7
+          image: wxext-registry.101.com/sdp/centos:centos7-v1
           command: ["sleep"]
           args:  [ "inf"]
           ports:
