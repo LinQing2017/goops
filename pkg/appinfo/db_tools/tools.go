@@ -4,6 +4,12 @@ import (
 	"context"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
+	mongotools "goops/pkg/util/mongo"
+)
+
+var (
+	NdpPortalClient *mongo.Client
+	K8sDBlClient    *mongo.Client
 )
 
 func GetOne(mongoDB, collectionName string, filter interface{}, client *mongo.Client, doc interface{}) error {
@@ -26,4 +32,18 @@ func GetBatch(mongoDB, collectionName string, filter interface{}, client *mongo.
 	defer cursor.Close(context.TODO())
 	cursor.All(context.TODO(), docs)
 	return nil
+}
+
+func InitDBClient() {
+	portalDBURI := "mongodb://" + PortalMongoUser + ":" + PortalMongoPasswd + "@" + PortalMongoUrl + "/" + PortalMongoDB + "?autoConnectRetry=true"
+	NdpPortalClient = mongotools.MongoClient(portalDBURI)
+
+	k8sDBURI := "mongodb://" + K8SPaasMongoUser + ":" + K8SPaasMongoPasswd + "@" + K8SPaasMongoUrl + "/" + K8SPaasMongoDB + "?autoConnectRetry=true"
+	K8sDBlClient = mongotools.MongoClient(k8sDBURI)
+}
+
+func CloseAllDBClient() {
+
+	mongotools.MongoDisconnect(NdpPortalClient)
+	mongotools.MongoDisconnect(K8sDBlClient)
 }

@@ -7,13 +7,14 @@ import (
 	"goops/pkg/appinfo/db_tools/types"
 )
 
-func GetPortalInfo(appname string, envType int, client *mongo.Client) types.AppPortalInfo {
+func GetPortalInfo(appname string, envType int, client *mongo.Client) (types.AppPortalInfo, error) {
 	appPortalInfo := types.AppPortalInfo{}
 
 	// 获取APP表数据
 	var app types.App
 	if err := GetOne(PortalMongoDB, "app", bson.M{"name": appname}, client, &app); err != nil {
 		logrus.Error("没有查询到App信息")
+		return appPortalInfo, err
 	}
 	appPortalInfo.APP = app
 
@@ -52,5 +53,5 @@ func GetPortalInfo(appname string, envType int, client *mongo.Client) types.AppP
 		logrus.Info("没有查询到K8s集群")
 	}
 	appPortalInfo.K8SServiceList = k8sServiceList
-	return appPortalInfo
+	return appPortalInfo, nil
 }

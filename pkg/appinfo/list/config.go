@@ -5,13 +5,13 @@ import (
 )
 
 var (
-	nameFromFile string
-	envType      int
-	withUrl      bool
+	nameFromFile  string
+	envType       int
+	outputFormate string
 )
 
 func AddListFlag(flags *pflag.FlagSet) {
 	flags.StringVar(&nameFromFile, "name-from-file", "apps-list", "从文件中获取APP信息。")
 	flags.IntVar(&envType, "env", 0, "环境ID。")
-	flags.BoolVar(&withUrl, "url", false, "打印URL信息。")
+	flags.StringVarP(&outputFormate, "output-formate", "o", "default", "输出类型。")
 }

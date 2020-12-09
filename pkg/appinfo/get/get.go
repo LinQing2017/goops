@@ -1,11 +1,13 @@
 package get
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"goops/pkg/appinfo/common"
 	"goops/pkg/appinfo/db_tools"
-	"goops/pkg/appinfo/db_tools/types"
-	mongotools "goops/pkg/util/mongo"
 )
 
 func NewCmdGet() *cobra.Command {
@@ -22,25 +24,29 @@ func NewCmdGet() *cobra.Command {
 }
 
 func Main(cmd *cobra.Command, args []string) {
-	portalDBURI := "mongodb://" + db_tools.PortalMongoUser + ":" + db_tools.PortalMongoPasswd + "@" + db_tools.PortalMongoUrl + "/" + db_tools.PortalMongoDB + "?autoConnectRetry=true"
-	ndpPortalClient := mongotools.MongoClient(portalDBURI)
-	portalAppInfo := db_tools.GetPortalInfo(args[0], envType, ndpPortalClient)
-	PrintApplicationInfo(portalAppInfo)
-	mongotools.MongoDisconnect(ndpPortalClient)
 
-}
-
-func PrintApplicationInfo(portalAppInfo types.AppPortalInfo) {
-
-	fmt.Println("*******************************************************")
-	fmt.Println("应用名称：", portalAppInfo.APP.Name)
-	fmt.Println("应用ID：", portalAppInfo.APP.ID.Hex())
-	fmt.Println("单实例：", portalAppInfo.APP.SingleInstance)
-	fmt.Println("*******************************************************")
-	for _, service := range portalAppInfo.K8SServiceList {
-		fmt.Printf("%2d_K8S_Cluster : %s\n", service.Env, service.ClusterId)
+	if len(args) < 1 || envType == 0 {
+		logrus.Error("请指定环境变量和APP名称")
+		return
 	}
-	for _, service := range portalAppInfo.EWSServiceList {
-		fmt.Printf("%2d_EWS_Cluster : %s\n", service.Env, service.ClusterId)
+
+	db_tools.InitDBClient()
+
+	for _, appname := range args {
+		appInfo, err := common.GetAppInfo(appname, envType)
+		if err != nil {
+			continue
+		}
+		if jsonByte, err := json.Marshal(appInfo); err == nil {
+			var jsonFormate bytes.Buffer
+			if err = json.Indent(&jsonFormate, jsonByte, "", "    "); err != nil {
+				logrus.Error("解析json字符传异常")
+			} else {
+				fmt.Println(jsonFormate.String())
+			}
+		} else {
+			logrus.Error("解析json字符传异常")
+		}
 	}
+	db_tools.CloseAllDBClient()
 }
