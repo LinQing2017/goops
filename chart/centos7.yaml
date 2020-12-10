@@ -19,7 +19,7 @@ spec:
           args:  [ "inf"]
           ports:
             - containerPort: 8080
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: PORTAL_MONGODB_USER
               value: ndp_portal

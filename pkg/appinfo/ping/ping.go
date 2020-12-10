@@ -123,6 +123,10 @@ func connect(url string) (*http.Response, error) {
 }
 
 func summary(printPings []*PrintPing, apps map[string]common.AppInformation) {
+
+	fmt.Println()
+	fmt.Println("==========================================")
+
 	appPings := mapset.NewSet()            // 实际进行拨测的应用
 	clusterPings := mapset.NewSet()        // 实际进行拨测的集群
 	appInputs := 0                         // 文件输入的应用名称(不计重复)
@@ -133,13 +137,17 @@ func summary(printPings []*PrintPing, apps map[string]common.AppInformation) {
 	}
 	for _, app := range apps {
 		appInputs++
-		for _, cluster := range getServer(app) {
-			clusterFromProtalDB.Add(cluster.ClusterId)
+		server := getServer(app)
+		if server == nil || len(server) == 0 {
+			fmt.Println(app.NAME, "没有查询到集群信息")
+		} else {
+			for _, cluster := range server {
+				clusterFromProtalDB.Add(cluster.ClusterId)
+			}
 		}
+
 	}
 
-	fmt.Println()
-	fmt.Println("==========================================")
 	fmt.Printf("拨测应用：%d个，输入应用：%d\n", len(appPings.ToSlice()), appInputs)
 	fmt.Printf("拨测集群：%d个，门户查询到集群：%d\n", len(clusterPings.ToSlice()), len(clusterFromProtalDB.ToSlice()))
 }
