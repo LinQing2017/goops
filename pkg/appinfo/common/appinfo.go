@@ -5,6 +5,7 @@ import (
 	"goops/pkg/appinfo/db_tools"
 	"goops/pkg/appinfo/db_tools/types"
 	"goops/pkg/appinfo/ews_client"
+	"gopkg.in/mgo.v2/bson"
 	"strings"
 )
 
@@ -13,7 +14,8 @@ func GetAppInfo(appname string, envType int) (AppInformation, error) {
 
 	appname = strings.TrimSpace(appname)
 	appinformation := AppInformation{
-		NAME: appname,
+		NAME:               appname,
+		ClusterBindDomains: make(map[string][]*types.RMDomains),
 	}
 	// 从Portal数据库获取相应信息
 	portalInfo, err := db_tools.GetPortalInfo(appname, envType, db_tools.NdpPortalClient)
@@ -29,8 +31,12 @@ func GetAppInfo(appname string, envType int) (AppInformation, error) {
 		if ewsCluster, err := ews_client.GetCluster(portalInfo.APP.Name, ewsServer.ClusterId); err == nil {
 			appinformation.EWSClusterInfo = append(appinformation.EWSClusterInfo, ewsCluster)
 		} else {
-			logrus.Error("获取弹性Web集群信息失败：", portalInfo.APP.Name, ewsServer.ClusterId)
+			logrus.Error("获取弹性Web集群信息失败：", portalInfo.APP.Name, ewsServer.ClusterId, err.Error())
 			continue
+		}
+		// 获取绑定的域名信息
+		if domains, err := GetClusterBindDomains(ewsServer.ClusterId); err == nil && domains != nil && len(domains) > 1 {
+			appinformation.ClusterBindDomains[ewsServer.ClusterId] = domains
 		}
 	}
 
@@ -38,8 +44,22 @@ func GetAppInfo(appname string, envType int) (AppInformation, error) {
 	appinformation.K8SClusterInfo = make([]types.K8SCluster, 0)
 	for _, k8sCluster := range portalInfo.K8SServiceList {
 		k8sClusterInfo := db_tools.GetK8SClusterInfo(k8sCluster.ClusterId, db_tools.K8sDBlClient)
+		domains, err := GetClusterBindDomains(k8sCluster.ClusterId)
+		if err == nil && domains != nil && len(domains) > 0 {
+			appinformation.ClusterBindDomains[k8sCluster.ClusterId] = domains
+		}
 		appinformation.K8SClusterInfo = append(appinformation.K8SClusterInfo, k8sClusterInfo)
 	}
 
 	return appinformation, nil
+}
+
+func GetClusterBindDomains(clusterId string) ([]*types.RMDomains, error) {
+	var domainBind []*types.RMDomains
+	if err := db_tools.GetBatch(db_tools.RMMongoDB, "domains",
+		bson.M{"cluster_id": clusterId}, db_tools.RMClient, &domainBind); err != nil {
+		logrus.Error("域名信息查询失败", err.Error())
+		return domainBind, err
+	}
+	return domainBind, nil
 }

@@ -6,10 +6,11 @@ import (
 )
 
 type AppInformation struct {
-	NAME           string
-	APPID          string
-	PortalInfo     types.AppPortalInfo
-	URL            string
-	EWSClusterInfo []ews_client.EWSCluster
-	K8SClusterInfo []types.K8SCluster
+	NAME               string
+	APPID              string
+	PortalInfo         types.AppPortalInfo
+	URL                string
+	EWSClusterInfo     []ews_client.EWSCluster
+	K8SClusterInfo     []types.K8SCluster
+	ClusterBindDomains map[string][]*types.RMDomains
 }

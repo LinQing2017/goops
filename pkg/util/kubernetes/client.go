@@ -12,12 +12,12 @@ import (
 func KubeClientAndConfig(configStr string) (*kubernetes.Clientset, *restclient.Config) {
 	config, err := KubeConfg(configStr)
 	if err != nil {
-		logrus.Error(err)
+		logrus.Error(err.Error())
 		panic(err)
 	}
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		logrus.Error(err)
+		logrus.Error(err.Error())
 		panic(err.Error())
 	}
 	return clientset, config

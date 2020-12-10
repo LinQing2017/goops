@@ -53,7 +53,7 @@ func GetPodList(kubeClientSet *kubernetes.Clientset, namespaceStr, lableSelector
 	}
 	pods, err = kubeClientSet.CoreV1().Pods(namespaceStr).List(listOptions)
 	if err != nil {
-		logrus.Error("获取Pod列表异常")
+		logrus.Error("获取Pod列表异常", err.Error())
 	}
 	return
 }

@@ -14,6 +14,11 @@ var (
 	K8SPaasMongoPasswd string
 	K8SPaasMongoUrl    string
 	K8SPaasMongoDB     string
+
+	RMMongoUser   string
+	RMMongoPasswd string
+	RMMongoUrl    string
+	RMMongoDB     string
 )
 
 func AddDBFlag(flags *pflag.FlagSet) {
@@ -26,4 +31,9 @@ func AddDBFlag(flags *pflag.FlagSet) {
 	flags.StringVar(&K8SPaasMongoPasswd, "k8spaas-db-password", os.Getenv("K8S_MONGODB_PASSWORD"), "Mongodb 密码。")
 	flags.StringVar(&K8SPaasMongoUrl, "k8spaas-db-url", os.Getenv("K8S_MONGODB_URL"), "Mongodb 地址。")
 	flags.StringVar(&K8SPaasMongoDB, "k8spaas-db-database", os.Getenv("K8S_MONGODB_DATABASE"), "Mongodb 数据库名称。")
+
+	flags.StringVar(&RMMongoUser, "rm-db-user", os.Getenv("RM_MONGODB_USER"), "Mongodb 用户名。")
+	flags.StringVar(&RMMongoPasswd, "rm-db-password", os.Getenv("RM_MONGODB_PASSWORD"), "Mongodb 密码。")
+	flags.StringVar(&RMMongoUrl, "rm-db-url", os.Getenv("RM_MONGODB_URL"), "Mongodb 地址。")
+	flags.StringVar(&RMMongoDB, "rm-db-database", os.Getenv("RM_MONGODB_DATABASE"), "Mongodb 数据库名称。")
 }

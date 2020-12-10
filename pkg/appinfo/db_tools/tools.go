@@ -8,8 +8,9 @@ import (
 )
 
 var (
-	NdpPortalClient *mongo.Client
-	K8sDBlClient    *mongo.Client
+	NdpPortalClient *mongo.Client = nil
+	K8sDBlClient    *mongo.Client = nil
+	RMClient        *mongo.Client = nil
 )
 
 func GetOne(mongoDB, collectionName string, filter interface{}, client *mongo.Client, doc interface{}) error {
@@ -26,11 +27,14 @@ func GetBatch(mongoDB, collectionName string, filter interface{}, client *mongo.
 	var cursor *mongo.Cursor
 	collection := client.Database(mongoDB).Collection(collectionName)
 	if cursor, err = collection.Find(context.TODO(), filter); err != nil {
-		logrus.Error("没有查询到Environment信息")
+		logrus.Error("没有查询到相关信息", err.Error())
 		return err
 	}
 	defer cursor.Close(context.TODO())
-	cursor.All(context.TODO(), docs)
+	if err = cursor.All(context.TODO(), docs); err != nil {
+		logrus.Error("解析失败", err.Error())
+		return err
+	}
 	return nil
 }
 
@@ -40,10 +44,14 @@ func InitDBClient() {
 
 	k8sDBURI := "mongodb://" + K8SPaasMongoUser + ":" + K8SPaasMongoPasswd + "@" + K8SPaasMongoUrl + "/" + K8SPaasMongoDB + "?autoConnectRetry=true"
 	K8sDBlClient = mongotools.MongoClient(k8sDBURI)
+
+	rmDBURI := "mongodb://" + RMMongoUser + ":" + RMMongoPasswd + "@" + RMMongoUrl + "/" + RMMongoDB + "?autoConnectRetry=true"
+	RMClient = mongotools.MongoClient(rmDBURI)
 }
 
 func CloseAllDBClient() {
 
 	mongotools.MongoDisconnect(NdpPortalClient)
 	mongotools.MongoDisconnect(K8sDBlClient)
+	mongotools.MongoDisconnect(RMClient)
 }
