@@ -2,10 +2,10 @@ package common
 
 import (
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/bson"
 	"goops/pkg/appinfo/db_tools"
 	"goops/pkg/appinfo/db_tools/types"
 	"goops/pkg/appinfo/ews_client"
-	"gopkg.in/mgo.v2/bson"
 	"strings"
 )
 
