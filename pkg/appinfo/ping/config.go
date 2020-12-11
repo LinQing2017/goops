@@ -12,6 +12,7 @@ var (
 	clusterType  string
 	codeList     string
 	codeAccept   = mapset.NewSet(200, 401, 403)
+	timeOut      int
 )
 
 func AddPingFlag(flags *pflag.FlagSet) {
@@ -20,4 +21,5 @@ func AddPingFlag(flags *pflag.FlagSet) {
 	flags.BoolVar(&batch, "batch", false, "批量拨测所有应用")
 	flags.StringVarP(&clusterType, "cluster-type", "c", "k8s", "拨测集群的类型")
 	flags.StringVar(&codeList, "code-list", "", "认可的WAF拨测返回值，默认包括：200,401,403")
+	flags.IntVar(&timeOut, "ping-timeout", 3, "拨测超时时间")
 }

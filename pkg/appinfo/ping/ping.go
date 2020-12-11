@@ -10,10 +10,12 @@ import (
 	"goops/pkg/appinfo/db_tools"
 	"goops/pkg/appinfo/db_tools/types"
 	systools "goops/pkg/util/sys"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func NewCmdPing() *cobra.Command {
@@ -122,12 +124,31 @@ func ping(printPing *PrintPing) {
 }
 
 func connect(url string) (*http.Response, error) {
-	client := &http.Client{}
+	client := &http.Client{
+		Transport: &http.Transport{
+			Dial: func(netw, addr string) (net.Conn, error) {
+				deadline := time.Now().Add(25 * time.Second)
+				c, err := net.DialTimeout(netw, addr, time.Second*10)
+				if err != nil {
+					return nil, err
+				}
+				c.SetDeadline(deadline)
+				return c, nil
+			},
+		},
+	}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		logrus.Errorf("构造Request失败（%s）。", err.Error())
 		return nil, err
 	}
+
+	if err != nil {
+
+		return nil, err
+
+	}
+
 	resp, err := client.Do(req)
 	return resp, err
 }
