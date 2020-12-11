@@ -1,6 +1,7 @@
 package ping
 
 import (
+	"context"
 	"fmt"
 	mapset "github.com/deckarep/golang-set"
 	"github.com/modood/table"
@@ -10,7 +11,6 @@ import (
 	"goops/pkg/appinfo/db_tools"
 	"goops/pkg/appinfo/db_tools/types"
 	systools "goops/pkg/util/sys"
-	"net"
 	"net/http"
 	"os"
 	"strconv"
@@ -124,20 +124,11 @@ func ping(printPing *PrintPing) {
 }
 
 func connect(url string) (*http.Response, error) {
-	client := &http.Client{
-		Transport: &http.Transport{
-			Dial: func(netw, addr string) (net.Conn, error) {
-				deadline := time.Now().Add(25 * time.Second)
-				c, err := net.DialTimeout(netw, addr, time.Second*10)
-				if err != nil {
-					return nil, err
-				}
-				c.SetDeadline(deadline)
-				return c, nil
-			},
-		},
-	}
+
+	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
+	ctx, _ := context.WithTimeout(context.Background(), time.Duration(timeOut)*time.Second)
+	req.WithContext(ctx)
 	if err != nil {
 		logrus.Errorf("构造Request失败（%s）。", err.Error())
 		return nil, err
@@ -190,6 +181,9 @@ func getServer(app common.AppInformation) []*types.Service {
 		server = app.PortalInfo.K8SServiceList
 	case "ews":
 		server = app.PortalInfo.EWSServiceList
+	case "all":
+		server = app.PortalInfo.EWSServiceList
+		server = append(server, app.PortalInfo.K8SServiceList...)
 	default:
 		logrus.Error("选择集群类型异常")
 		os.Exit(-1)

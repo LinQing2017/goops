@@ -35,7 +35,7 @@ func GetAppInfo(appname string, envType int) (AppInformation, error) {
 			continue
 		}
 		// 获取绑定的域名信息
-		if domains, err := GetClusterBindDomains(ewsServer.ClusterId); err == nil && domains != nil && len(domains) > 1 {
+		if domains, err := GetClusterBindDomains(ewsServer.ClusterId); err == nil && domains != nil && len(domains) > 0 {
 			appinformation.ClusterBindDomains[ewsServer.ClusterId] = domains
 		}
 	}
