@@ -8,7 +8,9 @@ import (
 	"goops/pkg/appinfo/common"
 	"goops/pkg/appinfo/db_tools"
 	"goops/pkg/appinfo/ews_client"
+	k8s_tools "goops/pkg/util/kubernetes"
 	systools "goops/pkg/util/sys"
+	"strconv"
 	"strings"
 )
 
@@ -102,12 +104,25 @@ func printEws(allInfo []common.AppInformation) {
 func printK8s(allInfo []common.AppInformation) {
 
 	printList := make([]PrintK8SInfo, len(allInfo))
+	kubeClient, _ := k8s_tools.KubeClientAndConfig(kubeConfig)
+	podDict, _ := k8s_tools.GetPodDictByNamespace(kubeClient, "")
+
 	for i, info := range allInfo {
+
+		pods := podDict[info.APPID]
+		running := 0
+		for _, pod := range pods {
+			if pod.Status.Phase == "Running" {
+				running++
+			}
+		}
+
 		printList[i] = PrintK8SInfo{
-			NAME:     info.NAME,
-			Num:      len(info.PortalInfo.K8SServiceList),
-			NodeType: make([]string, 0),
-			K8SAREA:  make([]string, 0),
+			NAME:      info.NAME,
+			Num:       len(info.PortalInfo.K8SServiceList),
+			PodStatus: strconv.Itoa(running) + "/" + strconv.Itoa(len(pods)),
+			NodeType:  make([]string, 0),
+			K8SAREA:   make([]string, 0),
 		}
 		for _, k8sCluster := range info.K8SClusterInfo {
 			if !strings.EqualFold(k8sCluster.Config.NodeType, "") {
@@ -119,5 +134,10 @@ func printK8s(allInfo []common.AppInformation) {
 
 		}
 	}
+
 	table.Output(printList)
+}
+
+func getPodStatus(configStr string) {
+
 }

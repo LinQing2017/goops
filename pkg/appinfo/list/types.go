@@ -16,8 +16,9 @@ type PrintEWSInfo struct {
 }
 
 type PrintK8SInfo struct {
-	NAME     string
-	Num      int // k8s集群数目
-	NodeType []string
-	K8SAREA  []string
+	NAME      string
+	Num       int // k8s集群数目
+	PodStatus string
+	NodeType  []string
+	K8SAREA   []string
 }
