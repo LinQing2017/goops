@@ -81,7 +81,7 @@ func GetPrintPings(appname string, printPings []*PrintPing) (common.AppInformati
 			isTestDomain := false
 			for _, label := range domain.Labels {
 				if strings.EqualFold(label.Key, "role") && strings.EqualFold(label.Value, "test") {
-					logrus.Warn("测试域名不进行拨测：", domain.Domain)
+					logrus.Debug("测试域名不进行拨测：", domain.Domain)
 					isTestDomain = true
 				}
 			}
