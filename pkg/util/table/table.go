@@ -95,7 +95,7 @@ func parse(slice interface{}) (
 			colorStrNum := strings.Count(cv, "\x1b[") / 2
 			if i == 0 {
 				coln = append(coln, ct)
-				colw = append(colw, len(ct)-colorStrNum*9)
+				colw = append(colw, len(ct))
 			}
 			if colw[n-m] < len(cv)-colorStrNum*9 {
 				colw[n-m] = len(cv) - colorStrNum*9
