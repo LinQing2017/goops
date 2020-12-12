@@ -117,7 +117,7 @@ func ping(printPing *PrintPing) {
 	if resp, err := connect(wafUrl); err != nil {
 		printPing.Message += color.HiRedString("waf拨测异常")
 	} else {
-		printPing.WafCode = convertStatusCode(resp.StatusCode, false)
+		printPing.WafCode = convertStatusCode(resp.StatusCode, true)
 	}
 }
 
