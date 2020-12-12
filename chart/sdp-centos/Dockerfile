@@ -3,7 +3,19 @@ LABEL maintainer="LinQing"
 
 ENV TZ=Asia/Shanghai
 
-RUN curl -o /usr/local/bin/sdp-app-cli http://172.24.135.10:57180/cicd/sdp-app-cli \
-&& chmod +x /usr/local/bin/sdp-app-cli \
+RUN curl -o /usr/local/lib http://goblin.lqingcloud.cn:9000/cicd/go1.15.6.linux-amd64.tar.gz \
+&& tar -xvf /usr/local/lib/go1.15.6.linux-amd64.tar.gz -C /usr/local/lib \
+&& mkdir -p /usr/local/lib/go/gopath \
+&& yum -y install git lrzsz \
+&& yum clean all \
 && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
 && echo $TZ > /etc/timezone
+
+ENV GOPRIVATE=.gitlab.com,.gite.com
+ENV GOPROXY=https://goproxy.cn,direct
+ENV GOSUMDB=off
+ENV GOROOT=/usr/local/lib/go
+ENV GOPATH=${GOROOT}/gopath
+ENV PATH=${PATH}:${GOROOT}/bin
+
+CMD ["sleep","inf"]
