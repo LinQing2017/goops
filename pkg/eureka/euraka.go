@@ -3,10 +3,10 @@ package eureka
 import (
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/modood/table"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"goops/pkg/util/sys"
+	"goops/pkg/util/table"
 	"net/http"
 	"net/url"
 	"strconv"

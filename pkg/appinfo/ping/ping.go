@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	mapset "github.com/deckarep/golang-set"
-	"github.com/modood/table"
+	"github.com/fatih/color"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"goops/pkg/appinfo/common"
 	"goops/pkg/appinfo/db_tools"
 	"goops/pkg/appinfo/db_tools/types"
 	systools "goops/pkg/util/sys"
+	"goops/pkg/util/table"
 	"net/http"
 	"os"
 	"strconv"
@@ -76,7 +77,7 @@ func GetPrintPings(appname string, printPings []*PrintPing) (common.AppInformati
 	for _, cluster := range server {
 		binds := appInformation.ClusterBindDomains[cluster.ClusterId]
 		if binds == nil || len(binds) < 1 {
-			logrus.Info("集群", cluster.ClusterId, " ("+appname+") ", "没有绑定域名")
+			logrus.Info(color.HiRedString("未绑定域名："), appInformation.GetClusterString(cluster.ClusterId), "，应用 ", appInformation.NAME)
 			continue
 		}
 		for _, domain := range binds {
@@ -91,9 +92,9 @@ func GetPrintPings(appname string, printPings []*PrintPing) (common.AppInformati
 				printPing := PrintPing{
 					Domain:    domain.Domain,
 					AppName:   appInformation.NAME,
-					ClusterId: cluster.ClusterId,
-					Code:      -999,
-					WafCode:   -999,
+					ClusterId: appInformation.GetClusterString(cluster.ClusterId),
+					Code:      "",
+					WafCode:   "",
 				}
 				printPings = append(printPings, &printPing)
 			}
@@ -107,20 +108,27 @@ func GetPrintPings(appname string, printPings []*PrintPing) (common.AppInformati
 func ping(printPing *PrintPing) {
 	url := "http://" + printPing.Domain
 	if resp, err := connect(url); err != nil {
-		printPing.Message += "拨测异常"
+		printPing.Message += color.HiRedString("拨测异常")
 	} else {
-		printPing.Code = resp.StatusCode
+		printPing.Code = convertStatusCode(resp.StatusCode, false)
 	}
 	wafUrl := "http://" + printPing.Domain + "/$waf/ping"
 
 	if resp, err := connect(wafUrl); err != nil {
-		printPing.Message += "waf拨测异常"
+		printPing.Message += color.HiRedString("waf拨测异常")
 	} else {
-		printPing.WafCode = resp.StatusCode
-		if !codeAccept.Contains(printPing.WafCode) {
-			printPing.Message += "WAF返回值异常"
-		}
+		printPing.WafCode = convertStatusCode(resp.StatusCode, false)
 	}
+}
+
+func convertStatusCode(statusCode int, isWaf bool) string {
+	if statusCode == 200 || (isWaf && codeAccept.Contains(statusCode)) {
+		return color.HiGreenString(strconv.Itoa(statusCode))
+	}
+	if statusCode >= 500 {
+		return color.HiRedString(strconv.Itoa(statusCode))
+	}
+	return color.HiYellowString(strconv.Itoa(statusCode))
 }
 
 func connect(url string) (*http.Response, error) {

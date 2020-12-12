@@ -1,7 +1,8 @@
 package list
 
 import (
-	"github.com/modood/table"
+	"fmt"
+	"github.com/fatih/color"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -10,7 +11,7 @@ import (
 	"goops/pkg/appinfo/ews_client"
 	k8s_tools "goops/pkg/util/kubernetes"
 	systools "goops/pkg/util/sys"
-	"strconv"
+	"goops/pkg/util/table"
 	"strings"
 )
 
@@ -95,7 +96,7 @@ func printEws(allInfo []common.AppInformation) {
 		}
 		// 所有集群都能找到一个对应实例，有包地址。否则认为应用缺少war包
 		if packageNum < len(info.PortalInfo.EWSServiceList) {
-			printList[i].PackageURL = "Not Found"
+			printList[i].PackageURL = color.HiRedString("Not Found")
 		}
 	}
 	table.Output(printList)
@@ -116,11 +117,16 @@ func printK8s(allInfo []common.AppInformation) {
 				running++
 			}
 		}
-
+		var podStatus string
+		if running == len(pods) {
+			podStatus = color.GreenString(fmt.Sprintf("%d/%d", running, len(pods)))
+		} else {
+			podStatus = color.HiRedString(fmt.Sprintf("%d/%d", running, len(pods)))
+		}
 		printList[i] = PrintK8SInfo{
 			NAME:      info.NAME,
 			Num:       len(info.PortalInfo.K8SServiceList),
-			PodStatus: strconv.Itoa(running) + "/" + strconv.Itoa(len(pods)),
+			PodStatus: podStatus,
 			NodeType:  make([]string, 0),
 			K8SAREA:   make([]string, 0),
 		}
@@ -136,8 +142,4 @@ func printK8s(allInfo []common.AppInformation) {
 	}
 
 	table.Output(printList)
-}
-
-func getPodStatus(configStr string) {
-
 }
