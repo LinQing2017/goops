@@ -18,5 +18,6 @@ ENV GOSUMDB=off
 ENV GOROOT=/usr/local/lib/go
 ENV GOPATH=${GOROOT}/gopath
 ENV PATH=${PATH}:${GOROOT}/bin
+ENV LANG=en_US.UTF-8
 
 CMD ["sleep","inf"]
