@@ -77,10 +77,10 @@ func (c *AppInformation) GetBerif() *BerifAppInformation {
 	}
 
 	for _, cluster := range c.K8SClusterInfo {
-		berif.ClusterIDs = append(berif.ClusterIDs, fmt.Sprintf("%s(%s)", cluster.ID, color.HiBlueString(cluster.Area)))
+		berif.ClusterIDs = append(berif.ClusterIDs, fmt.Sprintf("%s(%s)", cluster.ID, cluster.Area))
 	}
 	for _, cluster := range c.EWSClusterInfo {
-		berif.ClusterIDs = append(berif.ClusterIDs, fmt.Sprintf("%s(%s)", cluster.ID, color.HiYellowString("ews")))
+		berif.ClusterIDs = append(berif.ClusterIDs, fmt.Sprintf("%s(%s)", cluster.ID, "ews"))
 	}
 
 	for _, v := range c.ClusterBindDomains {
