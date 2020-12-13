@@ -81,24 +81,18 @@ func GetPrintPings(appname string, printPings []*PrintPing) (common.AppInformati
 			continue
 		}
 		for _, domain := range binds {
-			isTestDomain := false
-			for _, label := range domain.Labels {
-				if strings.EqualFold(label.Key, "role") && strings.EqualFold(label.Value, "test") {
-					logrus.Debug("测试域名不进行拨测：", domain.Domain)
-					isTestDomain = true
-				}
+			if domain.IsTestDomain() {
+				logrus.Debug("测试域名不进行拨测：", domain.Domain)
+				continue
 			}
-			if !isTestDomain {
-				printPing := PrintPing{
-					Domain:    domain.Domain,
-					AppName:   appInformation.NAME,
-					ClusterId: appInformation.GetClusterString(cluster.ClusterId),
-					Code:      "",
-					WafCode:   "",
-				}
-				printPings = append(printPings, &printPing)
+			printPing := PrintPing{
+				Domain:    domain.Domain,
+				AppName:   appInformation.NAME,
+				ClusterId: appInformation.GetClusterString(cluster.ClusterId),
+				Code:      "",
+				WafCode:   "",
 			}
-
+			printPings = append(printPings, &printPing)
 		}
 	}
 	return appInformation, printPings

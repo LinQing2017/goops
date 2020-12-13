@@ -1,13 +1,11 @@
 package get
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"goops/pkg/appinfo/common"
 	"goops/pkg/appinfo/db_tools"
+	sys_tool "goops/pkg/util/sys"
 )
 
 func NewCmdGet() *cobra.Command {
@@ -32,21 +30,19 @@ func Main(cmd *cobra.Command, args []string) {
 
 	db_tools.InitDBClient()
 
-	for _, appname := range args {
-		appInfo, err := common.GetAppInfo(appname, envType)
-		if err != nil {
-			continue
+	if appInfo, err := common.GetAppInfo(args[0], envType); err == nil {
+		switch outputType {
+		case "raw":
+			sys_tool.PrintJSON(appInfo)
+		case "brief":
+			sys_tool.PrintJSON(appInfo.GetBerif())
+		default:
+			logrus.Error("输出格式异常")
 		}
-		if jsonByte, err := json.Marshal(appInfo); err == nil {
-			var jsonFormate bytes.Buffer
-			if err = json.Indent(&jsonFormate, jsonByte, "", "    "); err != nil {
-				logrus.Error("解析json字符传异常")
-			} else {
-				fmt.Println(jsonFormate.String())
-			}
-		} else {
-			logrus.Error("解析json字符传异常")
-		}
+
+	} else {
+		logrus.Error("没有查询到信息")
 	}
+
 	db_tools.CloseAllDBClient()
 }
