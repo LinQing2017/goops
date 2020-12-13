@@ -56,7 +56,7 @@ func (c *AppInformation) GetEWSClusterInfo(clusterId string) *ews_client.EWSClus
 func (c *AppInformation) GetClusterString(clusterId string) string {
 
 	if cluster := c.GetEWSClusterInfo(clusterId); cluster != nil {
-		return fmt.Sprintf("%s EWS集群", clusterId)
+		return fmt.Sprintf("%s EWS集群(%s)", clusterId, color.YellowString("ews"))
 	}
 	if cluster := c.GetK8SClusterInfo(clusterId); cluster != nil {
 		return fmt.Sprintf("%s K8S集群(%s)", clusterId, color.BlueString(cluster.Area))
