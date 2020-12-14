@@ -71,7 +71,10 @@ func printDefault(allInfo []common.AppInformation) {
 			Single: "",
 			K8SNum: len(info.PortalInfo.K8SServiceList),
 			EWSNum: len(info.PortalInfo.EWSServiceList),
-			URL:    info.URL,
+			URL:    "",
+		}
+		if withUrl {
+			printList[i].URL = info.URL
 		}
 		if info.PortalInfo.APP.SingleInstance {
 			printList[i].Single = "Y"
@@ -80,11 +83,16 @@ func printDefault(allInfo []common.AppInformation) {
 		cmptDomain := 0
 		domainNum := 0
 		for _, domains := range info.ClusterBindDomains {
-			domainNum += len(domains)
+
 			for _, domain := range domains {
 				if domain.IsCmptDomain() {
 					cmptDomain++
+					continue
 				}
+				if !domain.IsTestDomain() {
+					domainNum++
+				}
+
 			}
 		}
 		printList[i].DomainNum = strconv.Itoa(domainNum)

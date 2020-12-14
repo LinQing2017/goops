@@ -9,6 +9,7 @@ var (
 	envType       int
 	outputFormate string
 	kubeConfig    string
+	withUrl       bool
 )
 
 func AddListFlag(flags *pflag.FlagSet) {
@@ -16,4 +17,5 @@ func AddListFlag(flags *pflag.FlagSet) {
 	flags.IntVar(&envType, "env", 0, "环境ID。")
 	flags.StringVarP(&outputFormate, "output-formate", "o", "default", "输出类型。")
 	flags.StringVar(&kubeConfig, "kubeconfig", "", "源Kubernete集群的config配置文件。")
+	flags.BoolVar(&withUrl, "url", false, "打印连接地址。")
 }
