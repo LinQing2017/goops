@@ -10,6 +10,7 @@ type RMDomains struct {
 	OwnerId     string           `bson:"owner_id"`
 	Area        string           `bson:"area"`
 	Environment string           `bson:"environment"`
+	Component   string           `bson:"component"`
 	Cluster     string           `bson:"cluster"`
 	Domain      string           `bson:"domain"`
 	Protocols   []string         `bson:"protocols"`
@@ -33,6 +34,17 @@ func (c *RMDomains) IsTestDomain() bool {
 		}
 	}
 	return isTestDomain
+}
+
+// 改域名是否是组件域名
+func (c *RMDomains) IsCmptDomain() bool {
+	isCmpt := false
+	for _, label := range c.Labels {
+		if strings.EqualFold(label.Key, "type") && strings.EqualFold(label.Value, "component") {
+			isCmpt = true
+		}
+	}
+	return isCmpt
 }
 
 func (c *RMDomains) ShortClusterId() string {

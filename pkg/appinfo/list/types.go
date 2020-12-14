@@ -1,12 +1,13 @@
 package list
 
 type PrintAppInfo struct {
-	NAME   string
-	APPID  string
-	Single string
-	K8SNum int // k8s集群数目
-	EWSNum int // 弹性web数目
-	URL    string
+	NAME      string
+	APPID     string
+	Single    string
+	DomainNum string // 绑定域名数目
+	K8SNum    int    // k8s集群数目
+	EWSNum    int    // 弹性web数目
+	URL       string
 }
 
 type PrintEWSInfo struct {

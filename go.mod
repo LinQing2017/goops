@@ -15,7 +15,7 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/fatih/color v1.10.0
 	github.com/imdario/mergo v0.3.11 // indirect
-	github.com/nwidger/jsoncolor v0.3.0 // indirect
+	github.com/nwidger/jsoncolor v0.3.0
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

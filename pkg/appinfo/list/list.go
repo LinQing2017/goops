@@ -12,6 +12,7 @@ import (
 	k8s_tools "goops/pkg/util/kubernetes"
 	systools "goops/pkg/util/sys"
 	"goops/pkg/util/table"
+	"strconv"
 	"strings"
 )
 
@@ -74,6 +75,21 @@ func printDefault(allInfo []common.AppInformation) {
 		}
 		if info.PortalInfo.APP.SingleInstance {
 			printList[i].Single = "Y"
+		}
+
+		cmptDomain := 0
+		domainNum := 0
+		for _, domains := range info.ClusterBindDomains {
+			domainNum += len(domains)
+			for _, domain := range domains {
+				if domain.IsCmptDomain() {
+					cmptDomain++
+				}
+			}
+		}
+		printList[i].DomainNum = strconv.Itoa(domainNum)
+		if cmptDomain > 0 {
+			printList[i].DomainNum = fmt.Sprintf("%d(cmpt:%d)", domainNum, cmptDomain)
 		}
 	}
 	table.Output(printList)

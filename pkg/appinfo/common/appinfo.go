@@ -56,12 +56,22 @@ func GetAppInfo(appname string, envType int) (AppInformation, error) {
 
 func GetClusterBindDomains(clusterId string) ([]*types.RMDomains, error) {
 	var domainBind []*types.RMDomains
+	var cmptDomainBind []*types.RMDomains
 	if !strings.EqualFold(clusterId, "") {
+		// 从domains表中查询域名信息
 		if err := db_tools.GetBatch(db_tools.RMMongoDB, "domains",
 			bson.M{"cluster_id": clusterId}, db_tools.RMClient, &domainBind); err != nil {
 			logrus.Error("域名信息查询失败", err.Error())
-			return domainBind, err
+			return nil, err
+		}
+		// 从component_domains表中查询域名信息
+		if err := db_tools.GetBatch(db_tools.RMMongoDB, "component_domains",
+			bson.M{"cluster_id": clusterId}, db_tools.RMClient, &cmptDomainBind); err != nil {
+			logrus.Error("域名信息查询失败", err.Error())
+			return nil, err
 		}
 	}
-	return domainBind, nil
+	allDomain := append(domainBind, cmptDomainBind...)
+
+	return allDomain, nil
 }
