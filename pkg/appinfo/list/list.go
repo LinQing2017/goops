@@ -137,7 +137,9 @@ func printK8s(allInfo []common.AppInformation) {
 			if !strings.EqualFold(k8sCluster.Area, "") {
 				printList[i].K8SAREA = append(printList[i].K8SAREA, k8sCluster.Area)
 			}
-
+			if !strings.EqualFold(k8sCluster.Config.NodeName, "") {
+				printList[i].NodeName = append(printList[i].NodeName, k8sCluster.Config.NodeName)
+			}
 		}
 	}
 
