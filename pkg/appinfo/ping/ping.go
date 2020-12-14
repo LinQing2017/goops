@@ -34,6 +34,11 @@ func NewCmdPing() *cobra.Command {
 
 func Main(cmd *cobra.Command, args []string) {
 
+	if envType == 0 {
+		logrus.Error("请指定环境变量")
+		return
+	}
+
 	db_tools.InitDBClient()
 	printPings := make([]*PrintPing, 0)
 	apps := make(map[string]common.AppInformation)
