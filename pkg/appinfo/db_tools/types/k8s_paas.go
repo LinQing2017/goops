@@ -10,7 +10,22 @@ type K8SCluster struct {
 }
 
 type K8SClusterConfig struct {
-	NodeSelector map[string]string `bson:"node_selector"`
-	NodeType     string            `bson:"node_type"`
-	NodeName     string            `bson:"node_name"`
+	NodeSelector      map[string]string    `bson:"node_selector"`
+	NodeType          string               `bson:"node_type"`
+	NodeName          string               `bson:"node_name"`
+	ContainerTemplate K8SContainerTemplate `bson:"container_template"`
+}
+
+type K8SContainerTemplate struct {
+	Resources K8SResources `bson:"resources"`
+}
+
+type K8SResources struct {
+	Limits   K8SCal `bson:"limits"`
+	Requests K8SCal `bson:"requests"`
+}
+
+type K8SCal struct {
+	Cpu    map[string]string `bson:"cpu"`
+	Memory map[string]string `bson:"memory"`
 }

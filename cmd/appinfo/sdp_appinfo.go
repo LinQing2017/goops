@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/spf13/cobra"
 	"goops/pkg/appinfo/db_tools"
+	"goops/pkg/appinfo/export"
 	"goops/pkg/appinfo/get"
 	"goops/pkg/appinfo/list"
 	"goops/pkg/appinfo/migrate_k8s"
@@ -30,6 +31,7 @@ func NewCmdAppInfo() *cobra.Command {
 	cmd.AddCommand(get.NewCmdGet())
 	cmd.AddCommand(list.NewListCmd())
 	cmd.AddCommand(ping.NewCmdPing())
+	cmd.AddCommand(export.NewCmdExport())
 	return cmd
 }
 

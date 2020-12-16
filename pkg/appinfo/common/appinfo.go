@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"goops/pkg/appinfo/db_tools"
@@ -23,7 +24,7 @@ func GetAppInfo(appname string, envType int) (AppInformation, error) {
 		return appinformation, err
 	}
 	appinformation.APPID = portalInfo.APP.ID.Hex()
-	appinformation.URL = "https://da.sdp.101.com/#/ndpfront/applicationManagement/applicationList/serviceInformation/" + portalInfo.APP.ID.Hex() + "/" + portalInfo.APP.Name
+	appinformation.URL = GetAppUrl(appinformation.APPID, appname)
 	appinformation.PortalInfo = portalInfo
 	// 通过弹性Web环境获取弹性web集群信息
 	appinformation.EWSClusterInfo = make([]ews_client.EWSCluster, 0)
@@ -74,4 +75,8 @@ func GetClusterBindDomains(clusterId string) ([]*types.RMDomains, error) {
 	allDomain := append(domainBind, cmptDomainBind...)
 
 	return allDomain, nil
+}
+
+func GetAppUrl(appId, appName string) string {
+	return fmt.Sprintf("https://da.sdp.101.com/#/ndpfront/applicationManagement/applicationList/serviceInformation/%s/%s", appId, appName)
 }

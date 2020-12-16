@@ -15,3 +15,14 @@ func GetK8SClusterInfo(clusterid string, client *mongo.Client) types.K8SCluster 
 	}
 	return k8sCluster
 }
+
+// 返回当前环境中所有应用的名称
+func GetAllClusterByEnv(envId int) []*types.Service {
+
+	var k8sServiceList []*types.Service
+	filter := bson.M{"type": 29, "env": envId}
+	if err := GetBatch(PortalMongoDB, "service", filter, NdpPortalClient, &k8sServiceList); err != nil {
+		logrus.Info("没有查询到K8s集群")
+	}
+	return k8sServiceList
+}
