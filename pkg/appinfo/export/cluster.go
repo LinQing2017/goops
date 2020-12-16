@@ -19,10 +19,11 @@ func ExportK8sCluster() []*ClusterInfo {
 
 		cinfo := ClusterInfo{
 			AppName:     clusterInfo.AppName,
+			ClusterName: fmt.Sprintf("%s-%s", "k8s", clusterInfo.ID[len(clusterInfo.ID)-6:]),
+			Replica:     clusterInfo.Replica,
 			MaxReplica:  clusterInfo.MaxReplica,
 			MemRequest:  clusterInfo.Config.ContainerTemplate.Resources.Requests.Memory["amount"],
 			MemLimit:    clusterInfo.Config.ContainerTemplate.Resources.Limits.Memory["amount"],
-			ClusterName: fmt.Sprintf("%s-%s", "k8s", clusterInfo.ID[len(clusterInfo.ID)-6:]),
 		}
 
 		if withUrl {

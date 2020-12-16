@@ -7,6 +7,7 @@ type K8SCluster struct {
 	AppId      string `bson:"app_id"`
 	AppName    string `bson:"app_name"`
 	MaxReplica int    `bson:"max_replica"`
+	Replica    int    `bson:"replica"`
 
 	Config K8SClusterConfig `bson:"config"`
 }
