@@ -37,23 +37,31 @@ func Main(cmd *cobra.Command, args []string) {
 
 	db_tools.InitDBClient()
 
-	if appInfo, err := common.GetAppInfo(args[0], envType); err == nil {
-		switch outputType {
-		case "raw":
-			sys_tool.PrintJSON(appInfo)
-		case "brief":
-			sys_tool.PrintJSON(appInfo.GetBerif())
-		case "appname":
-			ConvertID2Name()
-		default:
-			logrus.Error("输出格式异常")
-		}
-
-	} else {
-		logrus.Error("没有查询到信息")
+	switch outputType {
+	case "raw":
+		appInfo := Get(args[0])
+		sys_tool.PrintJSON(*appInfo)
+	case "brief":
+		appInfo := Get(args[0])
+		sys_tool.PrintJSON(*appInfo.GetBerif())
+	case "appname":
+		ConvertID2Name()
+	default:
+		logrus.Error("输出格式异常")
 	}
 
 	db_tools.CloseAllDBClient()
+}
+
+func Get(appname string) *common.AppInformation {
+
+	if appInfo, err := common.GetAppInfo(appname, envType); err == nil {
+		return &appInfo
+	} else {
+		logrus.Error("没有查询到信息")
+		os.Exit(-1)
+	}
+	return nil
 }
 
 func ConvertID2Name() {
