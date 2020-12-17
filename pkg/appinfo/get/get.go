@@ -1,11 +1,18 @@
 package get
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"goops/pkg/appinfo/common"
 	"goops/pkg/appinfo/db_tools"
+	"goops/pkg/appinfo/db_tools/types"
 	sys_tool "goops/pkg/util/sys"
+	systools "goops/pkg/util/sys"
+	"os"
+	"strings"
 )
 
 func NewCmdGet() *cobra.Command {
@@ -36,6 +43,8 @@ func Main(cmd *cobra.Command, args []string) {
 			sys_tool.PrintJSON(appInfo)
 		case "brief":
 			sys_tool.PrintJSON(appInfo.GetBerif())
+		case "appname":
+			ConvertID2Name()
 		default:
 			logrus.Error("输出格式异常")
 		}
@@ -45,4 +54,24 @@ func Main(cmd *cobra.Command, args []string) {
 	}
 
 	db_tools.CloseAllDBClient()
+}
+
+func ConvertID2Name() {
+
+	if !strings.EqualFold(intputFile, "") {
+		logrus.Error("请指定输入文件")
+		os.Exit(-1)
+	}
+	appnames := make([]string, 0)
+	for _, appid := range systools.ReadLine(intputFile) {
+		var app types.App
+		if err := db_tools.GetOne(db_tools.PortalMongoDB, "app", bson.M{"_id": primitive.ObjectIDFromHex(appid)}, db_tools.NdpPortalClient, app); err != nil {
+			logrus.Error(err.Error())
+		}
+		appnames = append(appnames, app.Name)
+	}
+	for _, name := range appnames {
+		fmt.Println(name)
+	}
+
 }

@@ -30,6 +30,7 @@ func Main(cmd *cobra.Command, args []string) {
 	switch outputFormat {
 
 	case "k8s-cluster":
+		// 导出K8S集群信息
 		output := ExportK8sCluster()
 		table.Output(output)
 	default:
