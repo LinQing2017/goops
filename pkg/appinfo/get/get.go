@@ -66,7 +66,7 @@ func Get(appname string) *common.AppInformation {
 
 func ConvertID2Name() {
 
-	if !strings.EqualFold(intputFile, "") {
+	if strings.EqualFold(intputFile, "") {
 		logrus.Error("请指定输入文件")
 		os.Exit(-1)
 	}
