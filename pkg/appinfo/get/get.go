@@ -65,7 +65,7 @@ func ConvertID2Name() {
 	appnames := make([]string, 0)
 	for _, appid := range systools.ReadLine(intputFile) {
 		var app types.App
-		objectId, _ := primitive.ObjectIDFromHex(appid)
+		objectId, _ := primitive.ObjectIDFromHex(strings.TrimSpace(appid))
 		if err := db_tools.GetOne(db_tools.PortalMongoDB, "app", bson.M{"_id": objectId}, db_tools.NdpPortalClient, app); err != nil {
 			logrus.Error(err.Error())
 		}
