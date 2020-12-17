@@ -30,7 +30,7 @@ func NewCmdGet() *cobra.Command {
 
 func Main(cmd *cobra.Command, args []string) {
 
-	if len(args) < 1 || envType == 0 {
+	if (!strings.EqualFold(outputType, "appname")) && (len(args) < 1 || envType == 0) {
 		logrus.Error("请指定环境变量和APP名称")
 		return
 	}
