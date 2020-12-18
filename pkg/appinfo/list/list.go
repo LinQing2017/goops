@@ -66,12 +66,13 @@ func printDefault(allInfo []common.AppInformation) {
 
 	for i, info := range allInfo {
 		printList[i] = PrintAppInfo{
-			NAME:   info.NAME,
-			APPID:  info.APPID,
-			Single: "",
-			K8SNum: len(info.PortalInfo.K8SServiceList),
-			EWSNum: len(info.PortalInfo.EWSServiceList),
-			URL:    "",
+			NAME:    info.NAME,
+			APPID:   info.APPID,
+			Creator: fmt.Sprintf("%s(%d)", info.PortalInfo.APP.CreatorName, info.PortalInfo.APP.Creator),
+			Single:  "",
+			K8SNum:  len(info.PortalInfo.K8SServiceList),
+			EWSNum:  len(info.PortalInfo.EWSServiceList),
+			URL:     "",
 		}
 		if withUrl {
 			printList[i].URL = info.URL
