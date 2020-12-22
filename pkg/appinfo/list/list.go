@@ -113,14 +113,8 @@ func printEws(allInfo []common.AppInformation) {
 			NAME: info.NAME,
 			Num:  len(info.PortalInfo.EWSServiceList),
 		}
-		packageNum := 0 // 能够找到包路径的弹性web集群数目
-		for _, ewsCluster := range info.EWSClusterInfo {
-			if len(ewsCluster.Instances) > 0 && !strings.EqualFold(ewsCluster.Instances[0].PackageUrl, "") {
-				packageNum++
-			}
-		}
 		// 所有集群都能找到一个对应实例，有包地址。否则认为应用缺少war包
-		if packageNum < len(info.PortalInfo.EWSServiceList) {
+		if info.IsPackageNotFound() {
 			printList[i].PackageURL = color.HiRedString("Not Found")
 		}
 	}

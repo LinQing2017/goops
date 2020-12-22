@@ -97,3 +97,16 @@ func (c *AppInformation) GetBerif() *BerifAppInformation {
 	return &berif
 
 }
+
+// 弹性实例是否找不到包
+func (c *AppInformation) IsPackageNotFound() bool {
+
+	packageNum := 0 // 能够找到包路径的弹性web集群数目
+	for _, ewsCluster := range c.EWSClusterInfo {
+		if len(ewsCluster.Instances) > 0 && !strings.EqualFold(ewsCluster.Instances[0].PackageUrl, "") {
+			packageNum++
+		}
+	}
+	// 所有集群都能找到一个对应实例，有包地址。否则认为应用缺少war包
+	return packageNum < len(c.PortalInfo.EWSServiceList)
+}
