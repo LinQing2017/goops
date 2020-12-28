@@ -159,6 +159,9 @@ func printK8s(allInfo []common.AppInformation) {
 			if !strings.EqualFold(k8sCluster.Config.NodeName, "") {
 				printList[i].NodeName = append(printList[i].NodeName, k8sCluster.Config.NodeName)
 			}
+			if k8sCluster.Config.Hpa.Enable {
+				printList[i].HPA += info.GetClusterString(k8sCluster.ID)
+			}
 		}
 	}
 

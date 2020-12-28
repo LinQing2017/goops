@@ -17,10 +17,17 @@ type K8SClusterConfig struct {
 	NodeType          string               `bson:"node_type"`
 	NodeName          string               `bson:"node_name"`
 	ContainerTemplate K8SContainerTemplate `bson:"container_template"`
+	Hpa               HPAConfig            `bson:"hpa"`
 }
 
 type K8SContainerTemplate struct {
 	Resources K8SResources `bson:"resources"`
+}
+
+type HPAConfig struct {
+	Enable     bool `bson:"enable"`
+	MinReplica int  `bson:"minReplica"`
+	MaxReplica int  `bson:"maxReplica"`
 }
 
 type K8SResources struct {

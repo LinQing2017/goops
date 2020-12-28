@@ -24,4 +24,5 @@ type PrintK8SInfo struct {
 	NodeName  []string
 	NodeType  []string
 	K8SAREA   []string
+	HPA       string
 }
