@@ -160,7 +160,7 @@ func printK8s(allInfo []common.AppInformation) {
 				printList[i].NodeName = append(printList[i].NodeName, k8sCluster.Config.NodeName)
 			}
 			if k8sCluster.Config.Hpa.Enable {
-				printList[i].HPA += info.GetClusterString(k8sCluster.ID)
+				printList[i].HPA += fmt.Sprintf("k8s-%s", k8sCluster.ID[len(k8sCluster.ID)-6:])
 			}
 		}
 	}
