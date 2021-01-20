@@ -1,7 +1,6 @@
 package ews_client
 
 import (
-	"fmt"
 	"github.com/fatih/color"
 	"strings"
 )
@@ -51,7 +50,7 @@ type EWSCluster struct {
 }
 
 func (c *EWSCluster) ShortClusterName() string {
-	return fmt.Sprintf("%s-%s", "ews", c.ID[len(c.ID)-6:])
+	return color.HiYellowString("%s-%s", "ews", c.ID[len(c.ID)-6:])
 }
 
 func (c *EWSCluster) IsPackageNotFound() string {

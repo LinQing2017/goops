@@ -85,7 +85,7 @@ func printCluster(allInfo []common.AppInformation) {
 				APPNAME:    info.NAME,
 				NAME:       ewsC.ShortClusterName(),
 				ID:         ewsC.ID,
-				Creator:    info.PortalInfo.APP.CreatorName,
+				Creator:    fmt.Sprintf("%s(%d)", info.PortalInfo.APP.CreatorName, info.PortalInfo.APP.Creator),
 				MigrateMsg: info.GetMigrateMessage(),
 			}
 			printList = append(printList, ewsCP)
@@ -96,8 +96,7 @@ func printCluster(allInfo []common.AppInformation) {
 				APPNAME:    info.NAME,
 				NAME:       k8sC.ShortClusterName(),
 				ID:         k8sC.ID,
-				Creator:    info.PortalInfo.APP.CreatorName,
-				K8SAREA:    k8sC.Area,
+				Creator:    fmt.Sprintf("%s(%d)", info.PortalInfo.APP.CreatorName, info.PortalInfo.APP.Creator),
 				NodeType:   k8sC.Config.NodeType,
 				NodeName:   k8sC.Config.NodeName,
 				MigrateMsg: info.GetMigrateMessage(),

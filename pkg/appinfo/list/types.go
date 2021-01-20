@@ -19,8 +19,6 @@ type PrintClusterInfo struct {
 	NAME       string
 	ID         string
 	Creator    string
-	Domain     string
-	K8SAREA    string
 	NodeType   string
 	NodeName   string
 	MigrateMsg string

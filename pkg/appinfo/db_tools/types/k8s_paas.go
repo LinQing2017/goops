@@ -1,6 +1,9 @@
 package types
 
-import "fmt"
+import (
+	"github.com/fatih/color"
+	"strings"
+)
 
 type K8SCluster struct {
 	ID         string `bson:"_id"`
@@ -43,5 +46,11 @@ type K8SCal struct {
 }
 
 func (c *K8SCluster) ShortClusterName() string {
-	return fmt.Sprintf("%s-%s", "ews", c.ID[len(c.ID)-6:])
+
+	area := c.Area
+	if strings.EqualFold(c.Area, "") {
+		area = "wx"
+	}
+
+	return color.HiBlueString("%s-%s", area, c.ID[len(c.ID)-6:])
 }
