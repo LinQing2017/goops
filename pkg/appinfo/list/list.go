@@ -97,6 +97,7 @@ func printCluster(allInfo []common.AppInformation) {
 				NAME:       k8sC.ShortClusterName(),
 				ID:         k8sC.ID,
 				Creator:    fmt.Sprintf("%s(%d)", info.PortalInfo.APP.CreatorName, info.PortalInfo.APP.Creator),
+				K8SArea:    k8sC.Area,
 				NodeType:   k8sC.Config.NodeType,
 				NodeName:   k8sC.Config.NodeName,
 				MigrateMsg: info.GetMigrateMessage(),
