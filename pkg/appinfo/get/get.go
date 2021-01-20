@@ -70,7 +70,7 @@ func ConvertID2Name() {
 		logrus.Error("请指定输入文件")
 		os.Exit(-1)
 	}
-	appnames := make([]string, 0)
+	appnames := make(map[string]interface{})
 	for _, appid := range systools.ReadLine(intputFile) {
 		var app types.App
 		objectId, _ := primitive.ObjectIDFromHex(strings.TrimSpace(appid))
@@ -78,10 +78,11 @@ func ConvertID2Name() {
 			logrus.Error(objectId.Hex(), " ", err.Error())
 		}
 		if !strings.EqualFold(app.Name, "") {
-			appnames = append(appnames, app.Name)
+			appnames[app.Name] = nil
 		}
 	}
-	for _, name := range appnames {
+
+	for name, _ := range appnames {
 		fmt.Println(name)
 	}
 

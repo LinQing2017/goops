@@ -1,5 +1,7 @@
 package types
 
+import "fmt"
+
 type K8SCluster struct {
 	ID         string `bson:"_id"`
 	EnvType    string `bson:"env_type"`
@@ -38,4 +40,8 @@ type K8SResources struct {
 type K8SCal struct {
 	Cpu    map[string]string `bson:"cpu"`
 	Memory map[string]string `bson:"memory"`
+}
+
+func (c *K8SCluster) ShortClusterName() string {
+	return fmt.Sprintf("%s-%s", "ews", c.ID[len(c.ID)-6:])
 }

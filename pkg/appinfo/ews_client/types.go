@@ -1,5 +1,11 @@
 package ews_client
 
+import (
+	"fmt"
+	"github.com/fatih/color"
+	"strings"
+)
+
 type ClusterConfigs struct {
 	Cpu                     int    `json:"cpu"`
 	Memory                  int    `json:"memory"`
@@ -42,4 +48,16 @@ type EWSCluster struct {
 	Configs      ClusterConfigs `json:"configs"`
 	Instances    []Instances    `json:"instances"`
 	MajorDomains []Domains      `json"major_domains"`
+}
+
+func (c *EWSCluster) ShortClusterName() string {
+	return fmt.Sprintf("%s-%s", "ews", c.ID[len(c.ID)-6:])
+}
+
+func (c *EWSCluster) IsPackageNotFound() string {
+	if len(c.Instances) > 0 && !strings.EqualFold(c.Instances[0].PackageUrl, "") {
+		return ""
+	} else {
+		return color.HiRedString("Not Found")
+	}
 }

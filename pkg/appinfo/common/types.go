@@ -99,14 +99,23 @@ func (c *AppInformation) GetBerif() *BerifAppInformation {
 }
 
 // 弹性实例是否找不到包
-func (c *AppInformation) IsPackageNotFound() bool {
+func (c *AppInformation) GetMigrateMessage() string {
 
+	msg := ""
+	// 单实例
+	if c.PortalInfo.APP.SingleInstance {
+		msg += color.HiRedString("单实例")
+	}
+
+	// 弹性web包不存在
 	packageNum := 0 // 能够找到包路径的弹性web集群数目
 	for _, ewsCluster := range c.EWSClusterInfo {
 		if len(ewsCluster.Instances) > 0 && !strings.EqualFold(ewsCluster.Instances[0].PackageUrl, "") {
 			packageNum++
 		}
 	}
-	// 所有集群都能找到一个对应实例，有包地址。否则认为应用缺少war包
-	return packageNum < len(c.PortalInfo.EWSServiceList)
+	if packageNum < len(c.PortalInfo.EWSServiceList) {
+		msg += color.HiBlueString(" EWS包不存在")
+	}
+	return msg
 }

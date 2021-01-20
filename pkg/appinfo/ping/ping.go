@@ -79,8 +79,6 @@ func GetPrintPings(appname string, printPings []*PrintPing) (common.AppInformati
 		return appInformation, printPings
 	}
 
-	ewsPackNotFound := appInformation.IsPackageNotFound()
-
 	server := getServer(appInformation)
 	for _, cluster := range server {
 		binds := appInformation.ClusterBindDomains[cluster.ClusterId]
@@ -100,12 +98,7 @@ func GetPrintPings(appname string, printPings []*PrintPing) (common.AppInformati
 				Code:      "",
 				WafCode:   "",
 			}
-			if appInformation.PortalInfo.APP.SingleInstance {
-				printPing.Message += color.HiYellowString("单实例应用")
-			}
-			if ewsPackNotFound {
-				printPing.Message += color.HiYellowString("集群找不到包")
-			}
+			printPing.Message = appInformation.GetMigrateMessage()
 			printPings = append(printPings, &printPing)
 		}
 	}
