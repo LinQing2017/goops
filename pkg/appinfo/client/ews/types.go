@@ -1,4 +1,4 @@
-package ews_client
+package ews
 
 import (
 	"github.com/fatih/color"

@@ -3,8 +3,8 @@ package common
 import (
 	"fmt"
 	"github.com/fatih/color"
+	"goops/pkg/appinfo/client/ews"
 	"goops/pkg/appinfo/db_tools/types"
-	"goops/pkg/appinfo/ews_client"
 	"strings"
 )
 
@@ -13,7 +13,7 @@ type AppInformation struct {
 	APPID              string
 	PortalInfo         types.AppPortalInfo
 	URL                string
-	EWSClusterInfo     []ews_client.EWSCluster
+	EWSClusterInfo     []ews.EWSCluster
 	K8SClusterInfo     []types.K8SCluster
 	ClusterBindDomains map[string][]*types.RMDomains
 }
@@ -43,7 +43,7 @@ func (c *AppInformation) GetK8SClusterInfo(clusterId string) *types.K8SCluster {
 	return nil
 }
 
-func (c *AppInformation) GetEWSClusterInfo(clusterId string) *ews_client.EWSCluster {
+func (c *AppInformation) GetEWSClusterInfo(clusterId string) *ews.EWSCluster {
 
 	for _, cluster := range c.EWSClusterInfo {
 		if strings.EqualFold(cluster.ID, clusterId) {

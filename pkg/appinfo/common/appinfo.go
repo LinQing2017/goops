@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
+	"goops/pkg/appinfo/client/ews"
 	"goops/pkg/appinfo/db_tools"
 	"goops/pkg/appinfo/db_tools/types"
-	"goops/pkg/appinfo/ews_client"
 	"strings"
 )
 
@@ -27,9 +27,9 @@ func GetAppInfo(appname string, envType int) (AppInformation, error) {
 	appinformation.URL = GetAppUrl(appinformation.APPID, appname)
 	appinformation.PortalInfo = portalInfo
 	// 通过弹性Web环境获取弹性web集群信息
-	appinformation.EWSClusterInfo = make([]ews_client.EWSCluster, 0)
+	appinformation.EWSClusterInfo = make([]ews.EWSCluster, 0)
 	for _, ewsServer := range portalInfo.EWSServiceList {
-		if ewsCluster, err := ews_client.GetCluster(portalInfo.APP.Name, ewsServer.ClusterId); err == nil {
+		if ewsCluster, err := ews.GetCluster(portalInfo.APP.Name, ewsServer.ClusterId); err == nil {
 			appinformation.EWSClusterInfo = append(appinformation.EWSClusterInfo, ewsCluster)
 		} else {
 			logrus.Error("获取弹性Web集群信息失败：", portalInfo.APP.Name, ewsServer.ClusterId, err.Error())

@@ -5,9 +5,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"go.mongodb.org/mongo-driver/mongo"
+	"goops/pkg/appinfo/client/ews"
 	"goops/pkg/appinfo/common"
 	"goops/pkg/appinfo/db_tools"
-	"goops/pkg/appinfo/ews_client"
 	systools "goops/pkg/util/sys"
 	"goops/pkg/util/table"
 	"strings"
@@ -27,7 +27,7 @@ func NewListCmd() *cobra.Command {
 			Main(cmd, args)
 		},
 	}
-	ews_client.AddEWSFlag(cmd.Flags())
+	ews.AddEWSFlag(cmd.Flags())
 	AddListFlag(cmd.Flags())
 	return cmd
 }
