@@ -23,5 +23,6 @@ type PrintClusterInfo struct {
 	NodeType   string
 	NodeName   string
 	PackageURL string
+	Version    string
 	MigrateMsg string
 }

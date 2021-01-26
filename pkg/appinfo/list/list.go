@@ -82,12 +82,14 @@ func printCluster(allInfo []common.AppInformation) {
 		// 获取EWS集群信息
 		if strings.EqualFold(clusterType, "all") || strings.EqualFold(clusterType, "ews") {
 			for _, ewsC := range info.EWSClusterInfo {
+				packageUrl, version := ewsC.GetPackageVersion()
 				ewsCP := PrintClusterInfo{
 					APPNAME:    info.NAME,
 					NAME:       ewsC.ShortClusterName(),
 					ID:         ewsC.ID,
 					Creator:    fmt.Sprintf("%s(%d)", info.PortalInfo.APP.CreatorName, info.PortalInfo.APP.Creator),
-					PackageURL: ewsC.GetPackageURL(),
+					PackageURL: packageUrl,
+					Version:    version,
 					MigrateMsg: info.GetMigrateMessage(),
 				}
 				printList = append(printList, ewsCP)

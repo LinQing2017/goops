@@ -61,10 +61,10 @@ func (c *EWSCluster) IsPackageNotFound() string {
 	}
 }
 
-func (c *EWSCluster) GetPackageURL() string {
+func (c *EWSCluster) GetPackageVersion() (string, string) {
 	if len(c.Instances) > 0 && !strings.EqualFold(c.Instances[0].PackageUrl, "") {
-		return c.Instances[0].PackageUrl
+		return c.Instances[0].PackageUrl, c.Instances[0].Version
 	} else {
-		return color.HiRedString("Not Found")
+		return color.HiRedString("Not Found"), ""
 	}
 }
