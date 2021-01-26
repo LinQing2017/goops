@@ -80,29 +80,35 @@ func printCluster(allInfo []common.AppInformation) {
 	printList := make([]PrintClusterInfo, 0)
 	for _, info := range allInfo {
 		// 获取EWS集群信息
-		for _, ewsC := range info.EWSClusterInfo {
-			ewsCP := PrintClusterInfo{
-				APPNAME:    info.NAME,
-				NAME:       ewsC.ShortClusterName(),
-				ID:         ewsC.ID,
-				Creator:    fmt.Sprintf("%s(%d)", info.PortalInfo.APP.CreatorName, info.PortalInfo.APP.Creator),
-				MigrateMsg: info.GetMigrateMessage(),
+		if strings.EqualFold(clusterType, "all") || strings.EqualFold(clusterType, "ews") {
+			for _, ewsC := range info.EWSClusterInfo {
+				ewsCP := PrintClusterInfo{
+					APPNAME:    info.NAME,
+					NAME:       ewsC.ShortClusterName(),
+					ID:         ewsC.ID,
+					Creator:    fmt.Sprintf("%s(%d)", info.PortalInfo.APP.CreatorName, info.PortalInfo.APP.Creator),
+					PackageURL: ewsC.GetPackageURL(),
+					MigrateMsg: info.GetMigrateMessage(),
+				}
+				printList = append(printList, ewsCP)
 			}
-			printList = append(printList, ewsCP)
 		}
+
 		// 获取K8S集群信息
-		for _, k8sC := range info.K8SClusterInfo {
-			k8sCP := PrintClusterInfo{
-				APPNAME:    info.NAME,
-				NAME:       k8sC.ShortClusterName(),
-				ID:         k8sC.ID,
-				Creator:    fmt.Sprintf("%s(%d)", info.PortalInfo.APP.CreatorName, info.PortalInfo.APP.Creator),
-				K8SArea:    k8sC.Area,
-				NodeType:   k8sC.Config.NodeType,
-				NodeName:   k8sC.Config.NodeName,
-				MigrateMsg: info.GetMigrateMessage(),
+		if strings.EqualFold(clusterType, "all") || strings.EqualFold(clusterType, "k8s") {
+			for _, k8sC := range info.K8SClusterInfo {
+				k8sCP := PrintClusterInfo{
+					APPNAME:    info.NAME,
+					NAME:       k8sC.ShortClusterName(),
+					ID:         k8sC.ID,
+					Creator:    fmt.Sprintf("%s(%d)", info.PortalInfo.APP.CreatorName, info.PortalInfo.APP.Creator),
+					K8SArea:    k8sC.Area,
+					NodeType:   k8sC.Config.NodeType,
+					NodeName:   k8sC.Config.NodeName,
+					MigrateMsg: info.GetMigrateMessage(),
+				}
+				printList = append(printList, k8sCP)
 			}
-			printList = append(printList, k8sCP)
 		}
 	}
 

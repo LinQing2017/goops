@@ -22,5 +22,6 @@ type PrintClusterInfo struct {
 	K8SArea    string
 	NodeType   string
 	NodeName   string
+	PackageURL string
 	MigrateMsg string
 }

@@ -60,3 +60,11 @@ func (c *EWSCluster) IsPackageNotFound() string {
 		return color.HiRedString("Not Found")
 	}
 }
+
+func (c *EWSCluster) GetPackageURL() string {
+	if len(c.Instances) > 0 && !strings.EqualFold(c.Instances[0].PackageUrl, "") {
+		return c.Instances[0].PackageUrl
+	} else {
+		return color.HiRedString("Not Found")
+	}
+}
