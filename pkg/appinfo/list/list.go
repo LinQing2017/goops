@@ -8,6 +8,7 @@ import (
 	"goops/pkg/appinfo/client/ews"
 	"goops/pkg/appinfo/common"
 	"goops/pkg/appinfo/db_tools"
+	"goops/pkg/util/metrics"
 	systools "goops/pkg/util/sys"
 	"goops/pkg/util/table"
 	"strings"
@@ -88,6 +89,7 @@ func printCluster(allInfo []common.AppInformation) {
 					NAME:       ewsC.ShortClusterName(),
 					ID:         ewsC.ID,
 					Creator:    fmt.Sprintf("%s(%d)", info.PortalInfo.APP.CreatorName, info.PortalInfo.APP.Creator),
+					Memory:     metrics.FormatByte(int64(ewsC.Configs.Memory)),
 					PackageURL: packageUrl,
 					Version:    version,
 					MigrateMsg: info.GetMigrateMessage(),
@@ -105,6 +107,7 @@ func printCluster(allInfo []common.AppInformation) {
 					ID:         k8sC.ID,
 					Creator:    fmt.Sprintf("%s(%d)", info.PortalInfo.APP.CreatorName, info.PortalInfo.APP.Creator),
 					K8SArea:    k8sC.Area,
+					Memory:     k8sC.Config.ContainerTemplate.Resources.Limits.Memory["amount"],
 					NodeType:   k8sC.Config.NodeType,
 					NodeName:   k8sC.Config.NodeName,
 					MigrateMsg: info.GetMigrateMessage(),

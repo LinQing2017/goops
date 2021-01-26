@@ -19,6 +19,7 @@ type PrintClusterInfo struct {
 	NAME       string
 	ID         string
 	Creator    string
+	Memory     string
 	K8SArea    string
 	NodeType   string
 	NodeName   string
