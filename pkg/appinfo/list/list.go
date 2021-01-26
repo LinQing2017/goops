@@ -89,7 +89,7 @@ func printCluster(allInfo []common.AppInformation) {
 					NAME:       ewsC.ShortClusterName(),
 					ID:         ewsC.ID,
 					Creator:    fmt.Sprintf("%s(%d)", info.PortalInfo.APP.CreatorName, info.PortalInfo.APP.Creator),
-					Memory:     metrics.FormatByte(int64(ewsC.Configs.Memory)),
+					Memory:     metrics.FormatByte(int64(ewsC.Configs.Memory) * 1024),
 					PackageURL: packageUrl,
 					Version:    version,
 					MigrateMsg: info.GetMigrateMessage(),
