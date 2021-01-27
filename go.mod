@@ -13,9 +13,11 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/fatih/color v1.10.0
+	github.com/go-resty/resty/v2 v2.4.0
 	github.com/imdario/mergo v0.3.11 // indirect
 	github.com/nwidger/jsoncolor v0.3.0
 	github.com/opencontainers/go-digest v1.0.0 // indirect
+	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/cobra v0.0.5
 	github.com/spf13/pflag v1.0.5

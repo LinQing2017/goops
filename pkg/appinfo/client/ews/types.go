@@ -17,7 +17,7 @@ type ClusterConfigs struct {
 	Dump                    bool   `json:"dump"`
 	GcLog                   bool   `json:"gc_log"`
 	MaxThread               int    `json:"max_thread"`
-	DeployMode              bool   `json:"deploy_mode"`
+	DeployMode              string `json:"deploy_mode"`
 	AutoSmoothDeploy        bool   `json:"auto_smooth_deploy"`
 	RollbackWhenDeployAbort bool   `json:"rollback_when_deploy_abort"`
 	HealthCheck             string `json:"health_check"`
