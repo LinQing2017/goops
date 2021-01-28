@@ -46,7 +46,7 @@ type K8SCal struct {
 }
 
 func (c *K8SCluster) ShortClusterName() string {
-	if strings.EqualFold(c.ID, "") && len(c.ID) > 6 {
+	if (!strings.EqualFold(c.ID, "")) && len(c.ID) > 6 {
 		return color.HiGreenString("%s-%s", "k8s", c.ID[len(c.ID)-6:])
 	} else {
 		return color.HiRedString("ERROR")
