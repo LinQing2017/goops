@@ -50,7 +50,11 @@ type EWSCluster struct {
 }
 
 func (c *EWSCluster) ShortClusterName() string {
-	return color.HiYellowString("%s-%s", "ews", c.ID[len(c.ID)-6:])
+	if strings.EqualFold(c.ID, "") && len(c.ID) > 6 {
+		return color.HiGreenString("%s-%s", "ews", c.ID[len(c.ID)-6:])
+	} else {
+		return color.HiRedString("ERROR")
+	}
 }
 
 func (c *EWSCluster) IsPackageNotFound() string {

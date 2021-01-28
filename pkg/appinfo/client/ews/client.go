@@ -18,8 +18,12 @@ func GetCluster(appname, clusterid string) (EWSCluster, error) {
 		SetResult(&cluster).
 		Get("http://" + EWSURL + "/v1/apps/" + appname + "/clusters/" + clusterid)
 
-	if err != nil || resp.StatusCode() != 200 {
-		logrus.Error(errors.Wrapf(err, "EWS服务（%s，%s）请求失败。", appname, clusterid, err).Error())
+	if err != nil {
+		logrus.Errorf(errors.Wrapf(err, "EWS服务（%s，%s）请求失败。", appname, clusterid, err).Error())
+		return cluster, err
+	}
+	if resp.StatusCode() != 200 {
+		logrus.Errorf("EWS服务（%s，%s）请求失败。", appname, clusterid, err)
 		return cluster, err
 	}
 	return cluster, nil
