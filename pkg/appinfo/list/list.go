@@ -2,6 +2,7 @@ package list
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -79,7 +80,13 @@ func printApp(allInfo []common.AppInformation) {
 
 func printCluster(allInfo []common.AppInformation) {
 	printList := make([]PrintClusterInfo, 0)
+
 	for _, info := range allInfo {
+		var msg string
+		if info.PortalInfo.APP.SingleInstance {
+			msg = color.HiRedString("单实例")
+		}
+
 		// 获取EWS集群信息
 		if strings.EqualFold(clusterType, "all") || strings.EqualFold(clusterType, "ews") {
 			for _, ewsC := range info.EWSClusterInfo {
@@ -93,7 +100,7 @@ func printCluster(allInfo []common.AppInformation) {
 					Instances:  len(ewsC.Instances),
 					PackageURL: packageUrl,
 					Version:    version,
-					MigrateMsg: info.GetMigrateMessage(),
+					MigrateMsg: msg + " " + ewsC.IsPackageNotFound(),
 				}
 				printList = append(printList, ewsCP)
 			}
@@ -112,7 +119,7 @@ func printCluster(allInfo []common.AppInformation) {
 					Instances:  k8sC.Replica,
 					NodeType:   k8sC.Config.NodeType,
 					NodeName:   k8sC.Config.NodeName,
-					MigrateMsg: info.GetMigrateMessage(),
+					MigrateMsg: msg,
 				}
 				printList = append(printList, k8sCP)
 			}
