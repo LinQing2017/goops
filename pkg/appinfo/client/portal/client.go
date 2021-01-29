@@ -74,6 +74,7 @@ func SwitchDomain(appname, domain, clusterName string, env int) {
 	}
 	if resp.StatusCode() != 200 {
 		logrus.Error("请求请求失败。")
+		logrus.Println(resp.String())
 		return
 	}
 }
