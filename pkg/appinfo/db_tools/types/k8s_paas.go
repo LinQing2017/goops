@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"github.com/fatih/color"
 	"strings"
 )
@@ -50,6 +51,15 @@ func (c *K8SCluster) ShortClusterName() string {
 		return color.HiGreenString("%s-%s", "k8s", c.ID[len(c.ID)-6:])
 	} else {
 		return color.HiRedString("ERROR")
+	}
+
+}
+
+func (c *K8SCluster) ShortClusterNameNoColor() string {
+	if (!strings.EqualFold(c.ID, "")) && len(c.ID) > 6 {
+		return fmt.Sprintf("%s-%s", "k8s", c.ID[len(c.ID)-6:])
+	} else {
+		return ""
 	}
 
 }

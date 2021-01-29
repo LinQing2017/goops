@@ -68,13 +68,13 @@ func (c *AppInformation) GetFullClusterId(clusterName string) string {
 
 	if strings.HasPrefix(clusterName, "k8s") {
 		for _, cluster := range c.K8SClusterInfo {
-			if strings.EqualFold(cluster.ShortClusterName(), clusterName) {
+			if strings.EqualFold(cluster.ShortClusterNameNoColor(), clusterName) {
 				return cluster.ID
 			}
 		}
 	} else if strings.HasPrefix(clusterName, "ews") {
 		for _, cluster := range c.EWSClusterInfo {
-			if strings.EqualFold(cluster.ShortClusterName(), clusterName) {
+			if strings.EqualFold(cluster.ShortClusterNameNoColor(), clusterName) {
 				return cluster.ID
 			}
 		}
