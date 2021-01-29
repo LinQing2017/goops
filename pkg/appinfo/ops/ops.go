@@ -14,7 +14,7 @@ func Main(cmd *cobra.Command, args []string) {
 
 	switch action {
 	case "sdomain":
-		pclient.SwitchDomain(args[1], args[2], args[3], envType)
+		pclient.SwitchDomain(args[0], args[1], args[2], envType)
 	default:
 		logrus.Error("操作不支持")
 	}
