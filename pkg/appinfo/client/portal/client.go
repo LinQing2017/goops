@@ -35,7 +35,7 @@ func SwitchDomain(appname, domain, clusterName string, env int) {
 		return
 	}
 	if strings.EqualFold(bdomain.ClusterId, clusterId) {
-		logrus.Error("该域名绑定在当当前集群")
+		logrus.Error("该域名绑定在当前集群")
 		return
 	}
 	params := DomainSwitch{
