@@ -38,13 +38,16 @@ func (c *RMDomains) IsTestDomain() bool {
 
 // 改域名是否是组件域名
 func (c *RMDomains) IsCmptDomain() bool {
-	isCmpt := false
+	return strings.EqualFold(c.GetLabel("type"), "component")
+}
+
+func (c *RMDomains) GetLabel(key string) string {
 	for _, label := range c.Labels {
-		if strings.EqualFold(label.Key, "type") && strings.EqualFold(label.Value, "component") {
-			isCmpt = true
+		if strings.EqualFold(label.Key, key) {
+			return label.Value
 		}
 	}
-	return isCmpt
+	return ""
 }
 
 func (c *RMDomains) ShortClusterId() string {

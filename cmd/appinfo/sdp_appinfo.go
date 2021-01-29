@@ -7,6 +7,7 @@ import (
 	"goops/pkg/appinfo/get"
 	"goops/pkg/appinfo/list"
 	"goops/pkg/appinfo/migrate_k8s"
+	"goops/pkg/appinfo/ops"
 	"goops/pkg/appinfo/ping"
 	sdpLogger "goops/pkg/logger"
 	"os"
@@ -32,6 +33,7 @@ func NewCmdAppInfo() *cobra.Command {
 	cmd.AddCommand(list.NewListCmd())
 	cmd.AddCommand(ping.NewCmdPing())
 	cmd.AddCommand(export.NewCmdExport())
+	cmd.AddCommand(ops.NewOpsCmd())
 	return cmd
 }
 

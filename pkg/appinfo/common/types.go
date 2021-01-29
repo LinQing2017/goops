@@ -64,6 +64,24 @@ func (c *AppInformation) GetClusterString(clusterId string) string {
 	return fmt.Sprintf("%s %s", clusterId, color.HiRedString("未找到到集群信息"))
 }
 
+func (c *AppInformation) GetFullClusterId(clusterName string) string {
+
+	if strings.HasPrefix(clusterName, "k8s") {
+		for _, cluster := range c.K8SClusterInfo {
+			if strings.EqualFold(cluster.ShortClusterName(), clusterName) {
+				return cluster.ID
+			}
+		}
+	} else if strings.HasPrefix(clusterName, "ews") {
+		for _, cluster := range c.EWSClusterInfo {
+			if strings.EqualFold(cluster.ShortClusterName(), clusterName) {
+				return cluster.ID
+			}
+		}
+	}
+	return ""
+}
+
 // 返回应用的简略信息
 func (c *AppInformation) GetBerif() *BerifAppInformation {
 
@@ -118,4 +136,13 @@ func (c *AppInformation) GetMigrateMessage() string {
 		msg += color.HiBlueString(" EWS包不存在")
 	}
 	return msg
+}
+
+// 返回改环境的所有域名
+func (c *AppInformation) GetAllDomains() []*types.RMDomains {
+	rdomains := make([]*types.RMDomains, 0)
+	for _, bdomains := range c.ClusterBindDomains {
+		rdomains = append(rdomains, bdomains...)
+	}
+	return rdomains
 }
