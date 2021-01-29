@@ -1,11 +1,12 @@
 package portal
 
 import (
+	"fmt"
+	"github.com/go-resty/resty/v2"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"goops/pkg/appinfo/common"
 	"goops/pkg/appinfo/db_tools/types"
-	systools "goops/pkg/util/sys"
 	"strconv"
 	"strings"
 )
@@ -56,5 +57,23 @@ func SwitchDomain(appname, domain, clusterName string, env int) {
 		Type:   "WEB_DOMAIN_SWITCH_MANAGE",
 		Params: params,
 	}
-	systools.PrintJSON(reqbody)
+
+	client := resty.New()
+	resp, err := client.R().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("x-loginname", XLoginName).
+		SetHeader("x-password", XPassword).
+		ForceContentType("application/json").
+		SetPathParam("url", fmt.Sprintf("http://%s/v0.2/domain/switch/%s", ServerUrl, appInfo.APPID)).
+		SetBody(reqbody).
+		Post("http://" + UcProxyURL)
+
+	if err != nil {
+		logrus.Errorf(errors.Wrapf(err, "请求请求失败。", err).Error())
+		return
+	}
+	if resp.StatusCode() != 200 {
+		logrus.Error("请求请求失败。")
+		return
+	}
 }
