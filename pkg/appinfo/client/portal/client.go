@@ -69,7 +69,7 @@ func SwitchDomain(appname, domain, clusterName string, env int) {
 		Post(UcProxyURL)
 
 	if err != nil {
-		logrus.Errorf(errors.Wrapf(err, "请求请求失败。", err).Error())
+		logrus.Errorf(errors.Wrapf(err, "请求请求失败。").Error())
 		return
 	}
 	if resp.StatusCode() != 200 {
