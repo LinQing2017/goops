@@ -64,9 +64,9 @@ func SwitchDomain(appname, domain, clusterName string, env int) {
 		SetHeader("x-loginname", XLoginName).
 		SetHeader("x-password", XPassword).
 		ForceContentType("application/json").
-		SetPathParam("url", fmt.Sprintf("http://%s/v0.2/domain/switch/%s", ServerUrl, appInfo.APPID)).
+		SetPathParam("url", fmt.Sprintf("%s/v0.2/domain/switch/%s", ServerUrl, appInfo.APPID)).
 		SetBody(reqbody).
-		Post("http://" + UcProxyURL)
+		Post(UcProxyURL)
 
 	if err != nil {
 		logrus.Errorf(errors.Wrapf(err, "请求请求失败。", err).Error())
