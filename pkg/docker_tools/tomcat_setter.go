@@ -136,11 +136,9 @@ func generateHostEntity(sdpConfig *SDP_CONFIG, server *etree.Document) {
 		appBase := newHost.SelectAttr("appBase")
 		appBase.Value = "webapps_base/" + hostConfig.APPNAME
 		hostname := newHost.SelectAttr("name")
-		hostname.Value = hostConfig.Domains[0]
-		if len(hostConfig.Domains) > 1 {
-			for _, aliasHostName := range hostConfig.Domains[1:] {
-				newHost.CreateElement("Alias").SetText(aliasHostName)
-			}
+		hostname.Value = strings.ToLower(hostConfig.APPNAME)
+		for _, aliasHostName := range hostConfig.Domains {
+			newHost.CreateElement("Alias").SetText(aliasHostName)
 		}
 		engine.AddChild(newHost)
 	}
