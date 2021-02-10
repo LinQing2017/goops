@@ -144,7 +144,7 @@ func generateHostEntity(sdpConfig *SDP_CONFIG, server *etree.Document) {
 	}
 	// 配置默认虚拟机
 	engine.RemoveChild(defaultHost)
-	engine.SelectAttr("defaultHost").Value = sdpConfig.HostDomainConfig[0].Domains[0]
+	engine.SelectAttr("defaultHost").Value = "localhost"
 }
 
 func modifyServerXml(sdpConfig *SDP_CONFIG) {
