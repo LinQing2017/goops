@@ -3,9 +3,11 @@ package docker_tools
 import (
 	"encoding/json"
 	"github.com/beevik/etree"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os"
+	"path"
 	"strings"
 )
 
@@ -114,7 +116,6 @@ func modifyHostEntity(sdpConfig *SDP_CONFIG, server *etree.Document) {
 		for _, valve := range valves {
 			className := valve.SelectAttr("className")
 			if className != nil && strings.EqualFold(className.Value, "org.apache.catalina.valves.AccessLogValve") {
-
 				pattern := valve.SelectAttr("pattern")
 				pattern.Value = sdpConfig.SdpServerAccessLog
 			}
@@ -164,10 +165,45 @@ func modifyServerXml(sdpConfig *SDP_CONFIG) {
 	}
 }
 
+func modifyLog4j2(sdpConfig *SDP_CONFIG) {
+	for _, h := range sdpConfig.HostDomainConfig {
+		appname := h.APPNAME
+		log4j2Path := path.Join("/usr/local/tomcat/webapps_base", appname, "ROOT/WEB-INF/log4j2.xml")
+		log4j2 := etree.NewDocument()
+		if err := log4j2.ReadFromFile(log4j2Path); err != nil {
+			logrus.Warn(errors.Wrapf(err, "%s 读取log4j2.xml文件失败", appname))
+			continue
+		}
+		properties := log4j2.SelectElement("Configuration").SelectElement("properties")
+		if properties == nil {
+			logrus.Warnf("%s log4j2.xml文件格式不正确", appname)
+			continue
+		}
+		for _, p := range properties.SelectElements("property") {
+			nameAttr := p.SelectAttr("name")
+			if nameAttr != nil && strings.EqualFold(nameAttr.Value, "logPath") {
+				p.SetText("/home/tomcat/logs")
+			}
+			if nameAttr != nil && strings.EqualFold(nameAttr.Value, "instance") {
+				p.SetText(appname)
+			}
+			if nameAttr != nil && strings.EqualFold(nameAttr.Value, "PATTERN") {
+				p.SetText("%d{yyyy-MM-dd HH:mm:ss.SSS} # Module=" + appname + " # %thread # %-5level # %logger{80}:%L # TraceID=%X{TraceID},,%msg%n")
+			}
+		}
+		log4j2.WriteSettings.CanonicalAttrVal = true
+		if err := log4j2.WriteToFile(log4j2Path); err != nil {
+			logrus.Errorf("%s保存log4j2.xml文件失败：", appname)
+			continue
+		}
+	}
+}
+
 func Main(cmd *cobra.Command, args []string) {
 
 	var sdpConfig SDP_CONFIG
 	initFromEnv(&sdpConfig)
 	modifyServerXml(&sdpConfig)
+	modifyLog4j2(&sdpConfig)
 
 }
